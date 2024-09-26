@@ -1,0 +1,180 @@
+body {
+    background-color: black;
+    color: white;
+    font-family: helvetica;
+  }
+  
+  .welcome-div, .h1p1 {
+    text-align: center;
+    width: 100%;
+    height: 50%;
+    background-color: #77529e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 25px;
+    padding-top: 10px;
+  }
+  
+  .p1 {
+    font-size: 18px;
+  }
+  
+  #navbar {
+    background-color: black;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    padding: 10px;
+    height: 20px;
+  }
+  
+  .nav-link {
+    color: #fff;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    font-size: 20px;
+    padding: 10px;
+  }
+  
+  .nav-link:hover {
+    text-decoration: underline;
+  }
+  
+  .about-div {
+    text-align: center;
+    margin-top: 70px;
+    padding-bottom: 50px;
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+  
+  .projects {
+    text-align: center;
+    background-color: #484848;
+    padding: 6rem 2rem;
+    padding-bottom: 10px;
+  }
+  
+  .h21 {
+    font-size: 45px;
+    text-align: center;
+    color: #fff;
+    margin-bottom: 50px;
+    margin-top: -50px;
+  }
+  
+  .project-tile {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 2rem;
+  }
+  
+  .project-item {
+    text-align: center;
+    width: 300px;
+    background-color: #333;
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 70px;
+  }
+  
+  .project-img {
+    width: 100%;
+    object-fit: cover;
+  }
+  
+  .project-title {
+    color: #fff;
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+  
+  .project-description {
+    color: #ccc;
+    font-size: 16px;
+  }
+  
+  .p-tbc {
+    text-align: center;
+    margin-top: -40px;
+    color: #fff;
+    font-size: 20px;
+  }
+  
+  .education-t {
+    text-align: center;
+    margin-top: 40px;
+  }
+  
+  .professional-certificates {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+    padding: 2rem 0;
+  }
+  
+  .cert-item {
+    flex: 1 1 calc(33.333% - 2rem);
+    text-align: center;
+    max-width: 300px;
+    padding: 5px;
+  }
+  
+  .cert-title {
+    background-color: #77529e;
+    color: #fff;
+    padding: 5px;
+    margin-bottom: 10px;
+  }
+  
+  .img2 {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+  
+  .bottom {
+    width: 100%;
+    background-color: #77529e;
+    padding: 10px;
+  }
+  
+  .ffcp {
+    text-align: center;
+  }
+  
+  a {
+    color: white;
+    text-decoration: none;
+  }
+  
+  a:hover {
+    text-decoration: underline;
+  }
+  
+  .h3 {
+    text-align: center;
+  }
+  
+  @media (max-width: 780px) {
+    h2 {
+      font-size: 15px;
+    }
+    p {
+      font-size: 15px;
+    }
+    .h21 {
+      font-size: 25px;
+    }
+    .project-item {
+      width: 100%;
+    }
+    .cert-item {
+      width: 100%;
+    }
+  }
