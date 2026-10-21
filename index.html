@@ -1,107 +1,237 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="styles.css">
-  <title>My Portfolio</title>
+  <title>Just Kuz Projects | App developer for small businesses</title>
+  <meta name="description" content="I build simple, reliable apps that small teams use to run their day: job tracking, stock control, laundry ordering and more.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <header id="navbar">
-    <nav class="nav">
-      <a href="#about" class="nav-link">About</a>
-      <a href="#projects" class="nav-link">Work</a>
-      <a href="#bottom-sec" class="nav-link">Contact</a>
-    </nav>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="wrap">
+      <a href="index.html" class="brand"><span class="brand-mark" aria-hidden="true"></span>Just Kuz Projects <small>App developer</small></a>
+      <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
+        <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M2 5h16M2 10h16M2 15h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <nav class="nav" id="site-nav">
+        <a href="index.html#work">Work</a>
+        <a href="services.html">Services</a>
+        <a href="about.html">About</a>
+        <a href="#contact" class="btn">Get in touch</a>
+      </nav>
+    </div>
   </header>
 
-  <div class="welcome-div">
-    <section id="welcome-section" class="welcome">
-      <div class="namediv">
-        <h1 class="h1p1">Hello, I'm Mel</h1>
-        <p class="p1">More projects coming soon...</p>
+  <main id="main">
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="wrap">
+        <div>
+          <h1>I build the apps small teams run their day on.</h1>
+          <p class="lede">Job tracking, stock control, ordering and approvals, built around how your people actually work and simple enough to use on the first day.</p>
+          <div class="btn-row">
+            <a href="#work" class="btn">See my work</a>
+            <a href="services.html" class="btn ghost">What I can build for you</a>
+          </div>
+          <p class="hero-note"><span class="dot" aria-hidden="true"></span>Based in South Africa. Taking on new projects.</p>
+        </div>
+
+        <!-- EDIT: check the "was" column matches what each app really replaced -->
+        <aside class="slip" aria-label="What my apps replaced">
+          <div class="slip-head">
+            <h2>What the apps replaced</h2>
+            <span>Client work</span>
+          </div>
+          <ol>
+            <li><span class="was">Paper stock sign-out book</span><span class="arrow" aria-hidden="true">&rarr;</span><span class="now">Kiosk tablet with live stock levels</span></li>
+            <li><span class="was">Laundry requests by message</span><span class="arrow" aria-hidden="true">&rarr;</span><span class="now">QR basket orders with every item counted</span></li>
+            <li><span class="was">Cleaning checklists on paper</span><span class="arrow" aria-hidden="true">&rarr;</span><span class="now">Room-by-room checklists with photos</span></li>
+            <li><span class="was">Supplier orders by phone and email</span><span class="arrow" aria-hidden="true">&rarr;</span><span class="now">Order, book in and count stock in one system</span></li>
+          </ol>
+          <p class="slip-foot">In daily use by a team of 14 field workers.</p>
+        </aside>
       </div>
     </section>
-  </div>
 
-  <section id="about">
-    <div class="about-div">
-      <h2>About</h2>
-      <p>I am a 24-year-old working on my studies in IT and computers. I've always had an interest in technology and enjoy building apps and games. I am based in South Africa. Finished high school in 2019, and it took me some time to fully realize my passion.</p>
+    <!-- FEATURED WORK -->
+    <section class="section" id="work">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Featured work</h2>
+          <p>Two systems I designed and built for businesses with on-site teams, and a horror game I made for fun.</p>
+        </div>
+
+        <article class="feature">
+          <div>
+            <h3>Simple Stock</h3>
+            <p>One stock system for the office and the stock room. Compare supplier prices, order, book deliveries in against the order, book stock out to named workers, run stock takes and print a PDF of all of it.</p>
+            <dl class="meta">
+              <dt>Platform</dt><dd>Windows desktop app and Android tablet</dd>
+              <dt>Built with</dt><dd>React Native, Expo, Supabase, Electron</dd>
+              <dt>My role</dt><dd>Design, development, testing</dd>
+            </dl>
+            <a href="work/simple-stock.html" class="btn">Read the case study</a>
+          </div>
+          <div class="feature-media">
+            <figure class="shot desktop">
+              <img src="images/simple-stock/hero-desktop.png" alt="Simple Stock home screen with the stock overview" onerror="this.remove()">
+              <figcaption class="ph"><strong>Home screen</strong><code>images/simple-stock/hero-desktop.png</code></figcaption>
+            </figure>
+          </div>
+        </article>
+
+        <article class="feature flip">
+          <div>
+            <h3>Cove Laundry</h3>
+            <p>Guests scan a code in their room, photograph their basket and list every item, with nothing to install. Staff collect it, tick each piece off, wash, dry and fold, and the guest is notified the moment it's done.</p>
+            <dl class="meta">
+              <dt>Platform</dt><dd>Android app for staff, web page for guests</dd>
+              <dt>Built with</dt><dd>React Native, Expo, Supabase</dd>
+              <dt>My role</dt><dd>Design, development, rollout</dd>
+            </dl>
+            <div class="btn-row">
+              <a href="work/cove-laundry.html" class="btn">Read the case study</a>
+              <a href="demos/cove-laundry/index.html" class="btn ghost">Try the live demo</a>
+            </div>
+          </div>
+          <div class="feature-media">
+            <figure class="shot phone">
+              <img src="images/cove-laundry/cover-1.png" alt="Cove Laundry guest view" onerror="this.remove()">
+              <figcaption class="ph"><strong>Guest view</strong><code>images/cove-laundry/cover-1.png</code></figcaption>
+            </figure>
+            <figure class="shot phone">
+              <img src="images/cove-laundry/cover-2.png" alt="Cove Laundry staff app" onerror="this.remove()">
+              <figcaption class="ph"><strong>Staff app</strong><code>images/cove-laundry/cover-2.png</code></figcaption>
+            </figure>
+          </div>
+        </article>
+
+        <article class="feature">
+          <div>
+            <h3>The Last Conjuration</h3>
+            <p>A short first-person horror game. You wake up in a crazed wizard's dungeon and have to get out without being caught. My first 3D game, built in Godot.</p>
+            <dl class="meta">
+              <dt>Platform</dt><dd>Windows, free to download</dd>
+              <dt>Built with</dt><dd>Godot, GDScript</dd>
+              <dt>Play time</dt><dd>10 to 20 minutes</dd>
+            </dl>
+            <a href="work/the-last-conjuration.html" class="btn">Read the case study</a>
+          </div>
+          <div class="feature-media game">
+            <figure class="shot wide">
+              <img src="https://img.itch.zone/aW1nLzE2ODYxMTM5LnBuZw==/original/IF93Lq.png" alt="The Last Conjuration cover art" onerror="this.remove()">
+              <figcaption class="ph"><strong>Game cover</strong></figcaption>
+            </figure>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- SERVICES TEASER -->
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Need something like this for your business?</h2>
+          <p>I build straightforward apps for small businesses that are still running on paper, spreadsheets or WhatsApp groups.</p>
+        </div>
+        <div class="three">
+          <div>
+            <h3>Replace the paperwork</h3>
+            <p>Checklists, sign-out sheets and job cards become a phone or tablet app, with every entry saved and searchable.</p>
+          </div>
+          <div>
+            <h3>Let customers order</h3>
+            <p>A simple web page customers open from a QR code, connected to an app your staff use to fulfil the order.</p>
+          </div>
+          <div>
+            <h3>See what's happening</h3>
+            <p>Managers get a live view of jobs, stock and requests, plus exports to Google Sheets for reporting.</p>
+          </div>
+        </div>
+        <p class="aside-note">I also make small custom games: a proposal, a birthday surprise or an in-joke for a friend. <a href="services.html#games">See custom games</a></p>
+        <p style="margin-top:28px"><a href="services.html" class="btn ghost">See services and pricing</a></p>
+      </div>
+    </section>
+
+    <!-- OTHER PROJECTS -->
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Other projects</h2>
+          <p>Personal projects and games, mostly built while learning.</p>
+        </div>
+        <ul class="list">
+          <li>
+            <img src="https://i.imgur.com/XodOj1Z.png" alt="">
+            <div><h3>Medication Manager</h3><p>Android app for tracking medications and scheduling reminders. React Native.</p></div>
+            <a class="link" href="https://github.com/mevelyns/MedicationManager/tree/main">View on GitHub</a>
+          </li>
+          <li>
+            <img src="https://i.imgur.com/Bl5a4Vz.jpeg" alt="">
+            <div><h3>Basic Chess</h3><p>Chess with a beginner AI and two-player mode, designed for kids aged 5 to 10. Java.</p></div>
+            <a class="link" href="https://meleengames.itch.io/simplechess">Get it on itch.io</a>
+          </li>
+          <li>
+            <img src="https://img.itch.zone/aW1nLzE1MDI4NTY4LnBuZw==/original/sciM3v.png" alt="">
+            <div><h3>A Hangover to Remember</h3><p>A 15-minute comedy adventure made in RPG Maker XP as an apology gift for my D&amp;D group. A traveller wakes up trapped in a village after a very big night out.</p></div>
+            <a class="link" href="https://meleengames.itch.io/a-hang-over-to-remember-but-a-game-that-you-wont">Get it on itch.io</a>
+          </li>
+          <li>
+            <img src="demos/little-walk/thumb.png" alt="" onerror="this.style.visibility='hidden'">
+            <div><h3>A Little Walk</h3><p>A three-minute sample of a custom gift game. Collect the memories, then answer the question at the end. Plays right in your browser.</p></div>
+            <a class="link" href="demos/little-walk/index.html">Play it now</a>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- CERTIFICATES -->
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head"><h2>Certificates</h2></div>
+        <div class="certs">
+          <figure><img src="https://i.imgur.com/ps0ERFk.png" alt="Google IT Support certificate"><figcaption>Google IT Support</figcaption></figure>
+          <figure><img src="https://i.imgur.com/AzELxhi.png" alt="freeCodeCamp JavaScript certificate"><figcaption>freeCodeCamp JavaScript</figcaption></figure>
+          <figure><img src="https://i.imgur.com/HTIsWZY.png" alt="AWS Cloud Technology Consultant certificate"><figcaption>AWS Cloud Technology Consultant</figcaption></figure>
+          <figure><img src="https://i.imgur.com/N3l9pKA.png" alt="Azure DP-900 certificate"><figcaption>Azure DP-900 Data Fundamentals</figcaption></figure>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- CONTACT -->
+  <section class="contact-band" id="contact">
+    <div class="wrap">
+      <div>
+        <h2>Tell me what your team does on paper today.</h2>
+        <p>Send a short message about your business and the job you'd like an app to handle. I'll reply with ideas and a rough quote.</p>
+      </div>
+      <!-- EDIT: put your real email and WhatsApp number in these links -->
+      <div class="btn-row">
+        <a href="mailto:justkuzprojects@gmail.com" class="btn light">Email me</a>
+        <a href="https://wa.me/27000000000" class="btn outline-light">WhatsApp me</a>
+      </div>
     </div>
   </section>
 
-  <section id="projects" class="projects">
-    <h2 class="h21">Some things I've worked on</h2>
-
-    <div class="project-tile">
-      <div class="project-item">
-        <a href="https://github.com/mevelyns/MedicationManager/tree/main">
-          <img src="https://i.imgur.com/XodOj1Z.png" alt="Medication Manager" class="project-img" height="200" width="200" />
-        </a>
-        <p class="project-title">Medication Manager</p>
-        <p class="project-description">An Android React Native app to help manage your medications and schedule reminders.</p>
-      </div>
-
-      <div class="project-item">
-        <a href="https://github.com/mevelyns/TheLastConjuration">
-          <img src="https://i.imgur.com/VJdvPix.png" alt="The Last Conjuration" class="project-img" height="200" width="200" />
-        </a>
-        <p class="project-title">The Last Conjuration</p>
-        <p class="project-description">A short horror game made in Godot with GD-Script.</p>
-      </div>
-
-      <div class="project-item">
-        <a href="https://github.com/mevelyns/Basic-Chess">
-          <img src="https://i.imgur.com/Bl5a4Vz.jpeg" alt="Basic Chess" class="project-img" height="200" width="200" />
-        </a>
-        <p class="project-title">Basic Chess</p>
-        <p class="project-description">A basic chess game with beginner AI and two player mode built for kids ages 5-10. Made with Java</p>
-      </div>
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>&copy; <span id="year">2026</span> Just Kuz Projects</span>
+      <nav aria-label="Elsewhere">
+        <a href="https://github.com/mevelyns">GitHub</a>
+        <a href="https://meleengames.itch.io/">itch.io</a>
+      </nav>
     </div>
-  </section>
+  </footer>
 
-  <p class="p-tbc">To be continued....</p>
-
-  
-  <section class="education">
-    <h1 class="education-t">Certificates</h1>
-    <div class="professional-certificates">
-      <div class="cert-item">
-        <h2>Google IT Support Certificate</h2>
-        <img src="https://i.imgur.com/ps0ERFk.png" class="img2"/>
-      </div>
-      
-      <div class="cert-item">
-        <h2> FreeCodecamp JavaScript</h2>
-        <img src="https://i.imgur.com/AzELxhi.png" class="img2"  />
-      </div>
-      <div class="cert-item">
-        <h2>AWS Cloud Technology Consultant</h2>
-        <img src="https://i.imgur.com/HTIsWZY.png" class="img2"/>
-      </div>
-      <div class="cert-item">
-        <h2>Azure DP-900 Data Fundementals</h2>
-        <img src="https://i.imgur.com/N3l9pKA.png" class="img2"/>
-      </div>
-    </div>
-  </section>
-
-  <section id="bottom-sec">
-    <div class="bottom">
-      <div class="social-icons">
-        <h3 class="h3">See my github</h3>
-        <a href="https://github.com/mevelyns" id="profile-link" target="_blank">
-          <i class="ri-fire-fill ri-2x"></i>
-          <p class="ffcp">GitHub</p>
-         <h3 class="h3">See my itch.io</h3>
-           <a href="https://meleengames.itch.io/" id="profile-link" target="_blank">
-            <i class="ri-fire-fill ri-2x"></i>
-            <p class="ffcp">Itch.io</p>
-        </a>
-      </div>
-    </div>
-  </section>
-
+  <script src="js/main.js"></script>
 </body>
 </html>
