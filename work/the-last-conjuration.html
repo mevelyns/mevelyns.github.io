@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Last Conjuration case study | Just Kuz Projects</title>
+  <meta name="description" content="A short first-person horror game made in Godot. Escape a crazed wizard's dungeon without getting caught.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="theme-dungeon">
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="wrap">
+      <a href="../index.html" class="brand"><span class="brand-mark" aria-hidden="true"></span>Just Kuz Projects <small>App developer</small></a>
+      <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
+        <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M2 5h16M2 10h16M2 15h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <nav class="nav" id="site-nav">
+        <a href="../index.html#work" aria-current="page">Work</a>
+        <a href="../services.html">Services</a>
+        <a href="../about.html">About</a>
+        <a href="#contact" class="btn">Get in touch</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <header class="page-head">
+      <div class="wrap">
+        <a href="../index.html#work" class="back">&larr; All work</a>
+        <h1>The Last Conjuration: trapped alone in a dungeon, will you make it out alive?</h1>
+        <p class="lede">A short first-person horror game. You followed a rumour about a wine cellar with a lifetime supply of wine, and woke up as the prisoner of a crazed wizard who wants to become a master conjurer.</p>
+        <div class="btn-row" style="margin-top:28px">
+          <a href="https://meleengames.itch.io/the-last-conjuration" class="btn">Play it on itch.io</a>
+          <a href="https://github.com/mevelyns/TheLastConjuration" class="btn ghost">View the code</a>
+        </div>
+        <dl class="cs-meta">
+          <div><dt>Type</dt><dd>Personal project</dd></div>
+          <div><dt>Platform</dt><dd>Windows download</dd></div>
+          <div><dt>Built with</dt><dd>Godot, GDScript</dd></div>
+          <div><dt>Play time</dt><dd>10 to 20 minutes</dd></div>
+        </dl>
+      </div>
+    </header>
+
+    <!-- Gameplay video and screenshots come straight from the itch.io page -->
+    <section class="cs-hero">
+      <div class="wrap">
+        <iframe class="video" src="https://www.youtube-nocookie.com/embed/MDfOjMcBRaE" title="The Last Conjuration gameplay video" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe>
+        <div class="gallery">
+          <figure class="shot wide"><img src="https://img.itch.zone/aW1hZ2UvMjgyMjQyNy8xNjg2MTIyNi5wbmc=/original/wcCMUQ.png" alt="Screenshot from The Last Conjuration" loading="lazy" onerror="this.remove()"><figcaption class="ph"><strong>Screenshot 1</strong></figcaption></figure>
+          <figure class="shot wide"><img src="https://img.itch.zone/aW1hZ2UvMjgyMjQyNy8xNjg2MTIyNS5wbmc=/original/OxxQlf.png" alt="Screenshot from The Last Conjuration" loading="lazy" onerror="this.remove()"><figcaption class="ph"><strong>Screenshot 2</strong></figcaption></figure>
+          <figure class="shot wide"><img src="https://img.itch.zone/aW1hZ2UvMjgyMjQyNy8xNjg2MTIyOC5wbmc=/original/7%2FXyxg.png" alt="Screenshot from The Last Conjuration" loading="lazy" onerror="this.remove()"><figcaption class="ph"><strong>Screenshot 3</strong></figcaption></figure>
+          <figure class="shot wide"><img src="https://img.itch.zone/aW1hZ2UvMjgyMjQyNy8xNjg2MTIyNy5wbmc=/original/nLhIRz.png" alt="Screenshot from The Last Conjuration" loading="lazy" onerror="this.remove()"><figcaption class="ph"><strong>Screenshot 4</strong></figcaption></figure>
+          <figure class="shot wide span"><img src="https://img.itch.zone/aW1hZ2UvMjgyMjQyNy8xNjg2MTIyOS5wbmc=/original/pxfGpl.png" alt="Screenshot from The Last Conjuration" loading="lazy" onerror="this.remove()"><figcaption class="ph"><strong>Screenshot 5</strong></figcaption></figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:0">
+      <div class="wrap two-col">
+        <div>
+          <h2>How it plays</h2>
+          <!-- EDIT: check this matches how the game plays -->
+          <p>You're alone in the dungeon except for another prisoner, and he's been possessed. Sneak, crouch and run through the halls, and pick up and place items as you work out how to escape.</p>
+          <p>The room you start in is the one place the enemy can't follow. Get caught four times and you're sent back to the safe room. Get caught again and it's game over.</p>
+        </div>
+        <div>
+          <h2>Controls</h2>
+          <dl class="controls">
+            <dt><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> + mouse</dt><dd>Move and look around</dd>
+            <dt><kbd>Shift</kbd></dt><dd>Run</dd>
+            <dt><kbd>Ctrl</kbd></dt><dd>Crouch</dd>
+            <dt><kbd>E</kbd></dt><dd>Interact, and pick up or place items marked with +</dd>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>What I learned</h2>
+          <p>This was my first 3D game in Godot, and most of the assets are my own.</p>
+        </div>
+        <!-- EDIT: swap these for what you actually found hardest or most fun -->
+        <div class="principles">
+          <div>
+            <h3>Building in 3D</h3>
+            <p>Laying out a full dungeon level, lighting it so it's dark enough to be scary but still playable, and keeping it running smoothly.</p>
+          </div>
+          <div>
+            <h3>An enemy that hunts you</h3>
+            <p>Writing the enemy's chase and catch logic in GDScript, plus the safe room it isn't allowed to enter.</p>
+          </div>
+          <div>
+            <h3>Making my own assets</h3>
+            <p>Low-poly models with pixel-art textures for the kitchen, the skeleton room and the objects you can pick up and use.</p>
+          </div>
+          <div>
+            <h3>Shipping it</h3>
+            <p>Exporting for Windows, testing on different PCs and publishing on itch.io, where players can pay what they like.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="panel">
+          <h2 style="font-size:1.6rem">Want a small game of your own?</h2>
+          <p class="muted measure">I make short custom games as gifts, for proposals, birthdays and in-jokes, with your names, photos and messages built in.</p>
+          <a href="../services.html#games" class="btn">See custom games</a>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap">
+      <div class="next-project">
+        <span class="muted">Next case study</span>
+        <a href="simple-stock.html">Simple Stock</a>
+      </div>
+    </div>
+  </main>
+
+  <section class="contact-band" id="contact">
+    <div class="wrap">
+      <div>
+        <h2>Got an idea for a game or an app?</h2>
+        <p>Tell me what you have in mind and I'll let you know how I can help.</p>
+      </div>
+      <div class="btn-row">
+        <a href="mailto:justkuzprojects@gmail.com" class="btn light">Email me</a>
+        <a href="https://wa.me/27000000000" class="btn outline-light">WhatsApp me</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>&copy; <span id="year">2026</span> Just Kuz Projects</span>
+      <nav aria-label="Elsewhere"><a href="https://github.com/mevelyns">GitHub</a><a href="https://meleengames.itch.io/">itch.io</a></nav>
+    </div>
+  </footer>
+  <script src="../js/main.js"></script>
+</body>
+</html>

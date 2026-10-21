@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cove Laundry case study | Just Kuz Projects</title>
+  <meta name="description" content="A hotel laundry app: guests send a basket from a QR code in their room, staff collect, count, wash and return it, and the guest is notified when it's done.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="wrap">
+      <a href="../index.html" class="brand"><span class="brand-mark" aria-hidden="true"></span>Just Kuz Projects <small>App developer</small></a>
+      <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
+        <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M2 5h16M2 10h16M2 15h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <nav class="nav" id="site-nav">
+        <a href="../index.html#work" aria-current="page">Work</a>
+        <a href="../services.html">Services</a>
+        <a href="../about.html">About</a>
+        <a href="#contact" class="btn">Get in touch</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <header class="page-head">
+      <div class="wrap">
+        <a href="../index.html#work" class="back">&larr; All work</a>
+        <h1>Cove Laundry: from the room to the folding table, with every item counted.</h1>
+        <p class="lede">Guests scan a code in their room, photograph their basket and list every item. Staff collect it, tick each piece off, wash, dry and fold, then close the job with a photo. The guest gets a notification the moment it's done.</p>
+        <div class="btn-row" style="margin-top:28px">
+          <a href="../demos/cove-laundry/index.html" class="btn">Try the live demo</a>
+          <a href="../demos/cove-laundry/dashboard.html" class="btn ghost">Open the manager dashboard</a>
+        </div>
+        <dl class="cs-meta">
+          <div><dt>Client</dt><dd>Accommodation operator</dd></div>
+          <div><dt>Platform</dt><dd>Android app + guest web app</dd></div>
+          <div><dt>My role</dt><dd>Design and full build</dd></div>
+          <div><dt>Year</dt><dd>2025 <!-- EDIT --></dd></div>
+        </dl>
+        <p class="demo-note">This is a portfolio version of a laundry app I built for a working accommodation operator. It's shown with a fictional hotel, Cobalt Cove Hotel, and made-up guests and staff. The live demo runs entirely in your browser, so you can play both the guest and the staff side. These demo app concepts are owened by the company that requested them.</p>
+      </div>
+    </header>
+
+    <!-- HERO SCREENS: screenshot the live demo (demos/cove-laundry) and save with these names -->
+    <section class="cs-hero">
+      <div class="wrap">
+        <div class="phones">
+          <figure class="shot phone"><img src="../images/cove-laundry/hero-1.png" alt="Guest sending a new basket" onerror="this.remove()"><figcaption class="ph"><strong>Guest: new basket</strong><code>cove-laundry/hero-1.png</code></figcaption></figure>
+          <figure class="shot phone"><img src="../images/cove-laundry/hero-2.png" alt="Guest order status" onerror="this.remove()"><figcaption class="ph"><strong>Guest: my orders</strong><code>cove-laundry/hero-2.png</code></figcaption></figure>
+          <figure class="shot phone"><img src="../images/cove-laundry/hero-3.png" alt="Staff queue" onerror="this.remove()"><figcaption class="ph"><strong>Staff: queue</strong><code>cove-laundry/hero-3.png</code></figcaption></figure>
+          <figure class="shot phone"><img src="../images/cove-laundry/hero-4.png" alt="Staff working through a basket" onerror="this.remove()"><figcaption class="ph"><strong>Staff: basket detail</strong><code>cove-laundry/hero-4.png</code></figcaption></figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:0">
+      <div class="wrap two-col">
+        <div>
+          <h2>The problem</h2>
+          <!-- EDIT: describe how it worked before, in your own words -->
+          <p>Laundry requests came in by message or at the door, and nothing recorded what was in each bag. When a sock or a shirt went missing there was no way to show what had been handed over, and guests had to keep asking whether their washing was ready.</p>
+        </div>
+        <div>
+          <h2>What I built</h2>
+          <p>Two apps from one codebase. Guests use a web app opened from a QR code in their room, with nothing to install. The laundry team uses an Android app. Every basket is photographed and counted item by item when it's sent, and checked off again before it goes back.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head"><h2>How a basket moves through it</h2></div>
+        <ol class="steps">
+          <li><div><h3>Guest scans the room code</h3><p>A card in each room has its own QR code, so the order already knows the room and the property.</p></div></li>
+          <li><div><h3>Guest photographs the basket and lists the items</h3><p>A photo plus a count of each item, like 3 shirts and 2 towels, becomes the record of what was handed over.</p></div></li>
+          <li><div><h3>Staff collect it</h3><p>The basket appears in the staff queue. Tapping Collect Order moves it to in progress.</p></div></li>
+          <li><div><h3>Tick, wash, dry and fold</h3><p>Staff tick off every item and mark each stage as they go.</p></div></li>
+          <li><div><h3>Close it with a photo</h3><p>The complete button only unlocks once every item and stage is done. Staff add a photo of the finished laundry as they close it.</p></div></li>
+          <li><div><h3>The guest is notified</h3><p>A push notification tells the guest their laundry is ready, even if the web app is closed.</p></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head"><h2>Key features</h2></div>
+        <div class="feature-rows">
+          <div class="frow">
+            <figure class="shot phone"><img src="../images/cove-laundry/feature-items.png" alt="Item checklist on a basket" onerror="this.remove()"><figcaption class="ph"><strong>Item checklist</strong><code>cove-laundry/feature-items.png</code></figcaption></figure>
+            <div>
+              <h3>Every item counted twice</h3>
+              <p>The guest lists what's in the basket, and staff tick each item off before it can be marked complete. Photos at both ends settle any question about what was handed over.</p>
+            </div>
+          </div>
+          <div class="frow">
+            <figure class="shot phone"><img src="../images/cove-laundry/feature-limits.png" alt="Order limit message" onerror="this.remove()"><figcaption class="ph"><strong>Order limits</strong><code>cove-laundry/feature-limits.png</code></figcaption></figure>
+            <div>
+              <h3>Limits the system enforces</h3>
+              <p>One open basket per room, five per room a day, fifty per property a day, and only real room numbers. The database checks these rules itself, so a public QR page can't be used to flood the team with fake orders.</p>
+            </div>
+          </div>
+          <div class="frow">
+            <figure class="shot phone"><img src="../images/cove-laundry/feature-offline.png" alt="Basket logged with no signal" onerror="this.remove()"><figcaption class="ph"><strong>No signal</strong><code>cove-laundry/feature-offline.png</code></figcaption></figure>
+            <div>
+              <h3>Works with no signal</h3>
+              <p>Staff can log a basket themselves, for example when a guest hands one over in person, and work through it fully offline. It uploads by itself once the phone reconnects.</p>
+            </div>
+          </div>
+          <div class="frow landscape">
+            <figure class="shot wide"><img src="../images/cove-laundry/feature-dashboard.png" alt="Laundry manager dashboard" onerror="this.remove()"><figcaption class="ph"><strong>Manager dashboard</strong><code>cove-laundry/feature-dashboard.png</code></figcaption></figure>
+            <div>
+              <h3>A dashboard for managers</h3>
+              <p>Orders per day, turnaround time, the status of every basket, what each staff member has done and which rooms use the service most.</p>
+              <p><a href="../demos/cove-laundry/dashboard.html">Open the dashboard</a></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap two-col">
+        <div>
+          <h2>Under the hood</h2>
+          <p>React Native and Expo Router build both the staff Android app and the guest web app from the same screens. Supabase is the backend, and the ordering limits are enforced in the database rather than in the app.</p>
+          <p>When staff mark a basket complete, a server function sends the guest a web push notification through Firebase.</p>
+          <p>The portfolio demo recreates both apps in the browser with sample data, so anyone can try the whole flow without installing anything.</p>
+          <ul class="stack">
+            <li>React Native</li><li>Expo Router</li><li>TypeScript</li><li>Supabase</li><li>Edge Functions</li><li>Web push</li><li>Offline sync</li>
+          </ul>
+        </div>
+        <div>
+          <h2>Results</h2>
+          <!-- EDIT: replace with real numbers or quotes. Even rough ones help. -->
+          <div class="results" style="grid-template-columns:1fr">
+            <div><strong><span class="todo">[e.g. 0 lost items]</span></strong><p>since every basket started being counted</p></div>
+            <div><strong><span class="todo">[e.g. 300+ baskets]</span></strong><p>handled through the app so far</p></div>
+            <div><strong><span class="todo">[quote]</span></strong><p>A line from a manager or staff member about using it</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap">
+      <div class="next-project">
+        <span class="muted">Next case study</span>
+        <a href="the-last-conjuration.html">The Last Conjuration</a>
+      </div>
+    </div>
+  </main>
+
+  <section class="contact-band" id="contact">
+    <div class="wrap">
+      <div>
+        <h2>Want something like this for your business?</h2>
+        <p>Ordering, bookings, requests: if your customers ask for it, they can probably order it from their phone.</p>
+      </div>
+      <div class="btn-row">
+        <a href="mailto:justkuzprojects@gmail.com" class="btn light">Email me</a>
+        <a href="https://wa.me/27000000000" class="btn outline-light">WhatsApp me</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>&copy; <span id="year">2026</span> Just Kuz Projects</span>
+      <nav aria-label="Elsewhere"><a href="https://github.com/mevelyns">GitHub</a><a href="https://meleengames.itch.io/">itch.io</a></nav>
+    </div>
+  </footer>
+  <script src="../js/main.js"></script>
+</body>
+</html>

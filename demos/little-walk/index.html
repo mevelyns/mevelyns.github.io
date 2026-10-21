@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Little Walk | Sample game by Just Kuz Projects</title>
+<meta name="description" content="A three-minute sample of a custom gift game: walk, collect memories, and answer the question at the end.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #1A1524; --ink: #EDE8F3; --muted: #A99FB8; --plum: #5A3D85; --lilac: #C9B2EC;
+    --gold: #F2C14E; --card: #FFFDF8; --card-ink: #2A1D45;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Public Sans", system-ui, sans-serif; }
+  a { color: var(--lilac); }
+  a:hover { color: #fff; }
+  :focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; border-radius: 6px; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 24px 16px 48px; }
+  header.top { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+  header.top a { text-decoration: none; font-weight: 600; }
+  h1 { font-family: "Bricolage Grotesque", system-ui, sans-serif; font-size: clamp(1.8rem, 4vw, 2.6rem); letter-spacing: -0.02em; margin: 0 0 6px; }
+  .intro { color: var(--muted); margin: 0 0 20px; max-width: 40em; }
+
+  /* The game */
+  .game { position: relative; width: 100%; aspect-ratio: 5 / 3; border-radius: 16px; overflow: hidden; background: #8FBF7A; touch-action: none; user-select: none; -webkit-user-select: none; }
+  canvas { display: block; width: 100%; height: 100%; }
+  .hud { position: absolute; left: 0; right: 0; top: 0; display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; pointer-events: none; }
+  .pill { pointer-events: auto; background: rgba(42, 29, 69, 0.82); color: #fff; border-radius: 999px; padding: 6px 12px; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; border: 0; font-family: inherit; }
+  button.pill { cursor: pointer; }
+  .hint { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); background: rgba(42, 29, 69, 0.82); color: #fff; border-radius: 999px; padding: 6px 14px; font-size: 13px; white-space: nowrap; pointer-events: none; transition: opacity .4s; }
+
+  .overlay { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; padding: 16px; background: rgba(26, 21, 36, 0.55); }
+  .overlay.show { display: flex; }
+  .card { background: var(--card); color: var(--card-ink); border-radius: 18px; padding: 20px; width: min(420px, 100%); max-height: 100%; overflow: auto; box-shadow: 0 20px 50px -20px rgba(0,0,0,.6); text-align: center; }
+  .card h2 { font-family: "Bricolage Grotesque", system-ui, sans-serif; margin: 8px 0 6px; font-size: 1.5rem; letter-spacing: -0.01em; }
+  .card p { margin: 0 0 16px; line-height: 1.5; color: #4A3E60; }
+  .photo { width: 100%; aspect-ratio: 4 / 3; border-radius: 12px; overflow: hidden; background: #ECE5F6; display: grid; place-items: center; color: #6B5C86; font-size: 13px; }
+  .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .photo .ph { display: grid; justify-items: center; gap: 6px; }
+  .card p.credit { font-size: 11px; color: #6B5C86; margin: 6px 0 0; text-align: right; min-height: 1em; }
+  .btn { font: 600 1rem "Public Sans", system-ui, sans-serif; border-radius: 10px; padding: 12px 20px; border: 2px solid var(--plum); background: var(--plum); color: #fff; cursor: pointer; min-height: 44px; }
+  .btn:hover { background: #3B2759; border-color: #3B2759; }
+  .btn.ghost { background: transparent; color: var(--plum); }
+  .btn.big { font-size: 1.15rem; padding: 14px 28px; }
+
+  .title-card h2 { font-size: clamp(1.6rem, 5vw, 2.2rem); }
+  .question { position: relative; width: min(520px, 100%); }
+  .question h2 { font-size: clamp(1.5rem, 5vw, 2.3rem); line-height: 1.15; margin: 4px 0 22px; }
+  .answers { position: relative; height: 140px; }
+  #yesBtn { position: absolute; left: 50%; top: 0; transform: translateX(-110%); }
+  #noBtn { position: absolute; left: 50%; top: 0; transform: translateX(10%); transition: left .18s ease, top .18s ease; background: var(--card); }
+
+  #fx { position: absolute; inset: 0; pointer-events: none; }
+  .below { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 20px; color: var(--muted); }
+  .below .btn { text-decoration: none; display: inline-block; }
+  @media (prefers-reduced-motion: reduce) { #noBtn { transition: none; } }
+  /* On phones the game window is small, so story cards open full-screen */
+  @media (max-width: 700px) {
+    .overlay { position: fixed; z-index: 50; background: rgba(26, 21, 36, 0.82); }
+  }
+  @media (max-width: 520px) {
+    .hud { padding: 6px 8px; }
+    .pill { font-size: 12px; padding: 4px 9px; }
+    .hint { font-size: 11px; bottom: 8px; }
+    .card { padding: 14px; }
+    .photo { aspect-ratio: 16 / 9; }
+    .card p { margin-bottom: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a href="../../services.html#games">&larr; Just Kuz Projects</a>
+    <span style="color: var(--muted); font-size: 14px">Sample custom game</span>
+  </header>
+  <h1>A Little Walk</h1>
+  <p class="intro">A three-minute sample of a custom gift game. In a real one, every name, message and photo is yours, and the question at the end can be anything you like.</p>
+
+  <div class="game" id="game">
+    <canvas id="view" width="1280" height="768" aria-label="Game: a meadow with a path, trees, a pond and glowing hearts to collect"></canvas>
+    <canvas id="fx" width="1280" height="768" aria-hidden="true"></canvas>
+    <div class="hud">
+      <span class="pill" id="count" aria-live="polite">&#10084; 0 / 5</span>
+      <button class="pill" id="mute" type="button" aria-pressed="false">Sound on</button>
+    </div>
+    <div class="hint" id="hint">Use the arrow keys, or tap where you want to walk</div>
+
+    <!-- Title -->
+    <div class="overlay show" id="titleScreen">
+      <div class="card title-card">
+        <h2 id="titleText">A little walk for Alex</h2>
+        <p>Collect the five glowing hearts. Each one is a memory. Then find the bench.</p>
+        <button class="btn big" id="startBtn" type="button">Start walking</button>
+      </div>
+    </div>
+
+    <!-- Memory card -->
+    <div class="overlay" id="memoryScreen" role="dialog" aria-modal="true" aria-labelledby="memTitle">
+      <div class="card">
+        <div class="photo" id="memPhoto"></div>
+        <p class="credit" id="memCredit"></p>
+        <h2 id="memTitle">Memory</h2>
+        <p id="memText"></p>
+        <button class="btn" id="memBtn" type="button">Keep walking</button>
+      </div>
+    </div>
+
+    <!-- The question -->
+    <div class="overlay" id="questionScreen" role="dialog" aria-modal="true" aria-labelledby="qText">
+      <div class="card question" id="questionCard">
+        <h2 id="qText">Alex, will you go on a date with me?</h2>
+        <div class="answers" id="answers">
+          <button class="btn big" id="yesBtn" type="button">Yes!</button>
+          <button class="btn big ghost" id="noBtn" type="button">No</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- The "no" ending -->
+    <div class="overlay" id="sadScreen" role="dialog" aria-modal="true" aria-labelledby="sadTitle">
+      <div class="card">
+        <div class="photo" id="sadPhoto"></div>
+        <p class="credit" id="sadCredit"></p>
+        <h2 id="sadTitle">Oh.</h2>
+        <p id="sadText"></p>
+        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap">
+          <button class="btn" id="mindBtn" type="button">Wait, I meant yes!</button>
+          <button class="btn ghost" id="sadAgainBtn" type="button">Play again</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- The ending -->
+    <div class="overlay" id="endScreen" role="dialog" aria-modal="true" aria-labelledby="endTitle">
+      <div class="card">
+        <h2 id="endTitle">Best answer.</h2>
+        <p id="endText"></p>
+        <button class="btn ghost" id="againBtn" type="button">Play again</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="below">
+    <span>Works on phones too. Tap where you want to walk.</span>
+    <a class="btn" href="../../services.html#games">Get a game like this</a>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   PERSONALISE HERE
+   Change the names, messages and photos below. A photo is a file name
+   in this folder (e.g. "photo1.jpg") or a web address. Leave it empty
+   for the placeholder frame. "credit" is the small line under a photo.
+   The sample photos are free (and silly) cat photos from Unsplash.
+   ===================================================================== */
+const STORY = {
+  to: "Alex",
+  from: "Sam",
+  question: "will you go on a date with me?",
+  yes: "Yes!",
+  no: "No",
+  memories: [
+    { title: "Where it started", text: "The coffee shop where you laughed so hard you snorted. I think I knew right then.", photo: "https://images.unsplash.com/photo-1641805963238-a8d4717575d6?w=800&q=70&auto=format&fit=crop", credit: "Bro Takes Photos" },
+    { title: "The road trip", text: "Six hours, one playlist on repeat, and not a single boring minute.", photo: "https://images.unsplash.com/photo-1533738363-b7f9aef128ce?w=800&q=70&auto=format&fit=crop", credit: "Raoul Droog" },
+    { title: "The rainy day", text: "We got completely soaked and you said it was the best day of the month.", photo: "https://images.unsplash.com/photo-1754465164919-ea935adfb7db?w=800&q=70&auto=format&fit=crop", credit: "Quan Jing" },
+    { title: "Your terrible jokes", text: "I pretend they aren't funny. They are. Please never stop.", photo: "https://images.unsplash.com/photo-1594318142972-1e2ea7487a3e?w=800&q=70&auto=format&fit=crop", credit: "Marlon Soares" },
+    { title: "Today", text: "There's one more thing I want to ask you. It's waiting by the bench.", photo: "https://images.unsplash.com/photo-1489084917528-a57e68a79a1e?w=800&q=70&auto=format&fit=crop", credit: "Marko Blažević" },
+  ],
+  stillNo: "Still no",
+  sadTitle: "Oh.",
+  sad: "That's okay. The cat is taking it very hard, though.",
+  sadPhoto: "https://images.unsplash.com/photo-1767984538997-fafa0f3755f1?w=800&q=70&auto=format&fit=crop",
+  sadCredit: "qui nguyen",
+  changedMind: "Wait, I meant yes!",
+  endingTitle: "Best answer.",
+  ending: "I'll pick you up at seven. Wear something comfy, we're walking. Love, Sam",
+};
+
+/* ===================================================================== */
+(function () {
+  "use strict";
+  const W = 640, H = 384;
+  const view = document.getElementById("view");
+  const ctx = view.getContext("2d");
+  ctx.scale(2, 2);
+  const fx = document.getElementById("fx");
+  const fctx = fx.getContext("2d");
+  fctx.scale(2, 2);
+  const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // ---------- seeded random so the meadow looks the same every time ----------
+  let seed = 7;
+  const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+
+  // ---------- the world ----------
+  const path = [[0, 340], [110, 305], [215, 318], [320, 262], [420, 228], [515, 150], [585, 98]];
+  const pond = { x: 170, y: 118, rx: 70, ry: 40 };
+  const trees = [[40, 70], [300, 64], [372, 36], [612, 250], [478, 338], [92, 205], [565, 318], [252, 176], [430, 108], [610, 40]].map(([x, y]) => ({ x, y }));
+  const bench = { x: 585, y: 82 };
+  const memSpots = [[72, 282], [262, 254], [336, 150], [470, 272], [505, 104]];
+  const obstacles = [
+    { x: 130, y: 120, r: 36 }, { x: 170, y: 114, r: 40 }, { x: 210, y: 120, r: 36 },
+    ...trees.map(t => ({ x: t.x, y: t.y + 6, r: 14 })),
+    { x: bench.x, y: bench.y - 4, r: 16 },
+  ];
+  const memories = memSpots.map(([x, y], i) => ({ x, y, i, got: false }));
+
+  const player = { x: 26, y: 344, face: 1, step: 0, moving: false };
+  let target = null;
+  const keys = new Set();
+  let state = "title";
+  let collected = 0;
+  let t0 = performance.now();
+
+  // ---------- pre-render the ground once ----------
+  const ground = document.createElement("canvas");
+  ground.width = W * 2; ground.height = H * 2;
+  (function paintGround() {
+    const g = ground.getContext("2d");
+    g.scale(2, 2);
+    g.fillStyle = "#8FBF7A"; g.fillRect(0, 0, W, H);
+    for (let i = 0; i < 900; i++) {
+      g.fillStyle = rnd() < 0.5 ? "rgba(255,255,255,0.06)" : "rgba(30,70,30,0.07)";
+      g.fillRect(rnd() * W, rnd() * H, 2 + rnd() * 3, 2 + rnd() * 3);
+    }
+    // path
+    g.lineCap = "round"; g.lineJoin = "round";
+    g.strokeStyle = "#C9A876"; g.lineWidth = 40; strokePath(g);
+    g.strokeStyle = "#E9D3A6"; g.lineWidth = 32; strokePath(g);
+    // pond
+    g.fillStyle = "#6E9F63";
+    g.beginPath(); g.ellipse(pond.x, pond.y + 4, pond.rx + 6, pond.ry + 6, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "#6FA8D6";
+    g.beginPath(); g.ellipse(pond.x, pond.y, pond.rx, pond.ry, 0, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = "rgba(255,255,255,0.45)"; g.lineWidth = 2;
+    for (const [dx, dy, w] of [[-30, -10, 22], [10, 6, 30], [28, -16, 16]]) {
+      g.beginPath(); g.moveTo(pond.x + dx, pond.y + dy); g.lineTo(pond.x + dx + w, pond.y + dy); g.stroke();
+    }
+    // flowers
+    const petals = ["#F7F2FA", "#F2C14E", "#E58FB0", "#C9B2EC"];
+    for (let i = 0; i < 140; i++) {
+      const x = rnd() * W, y = rnd() * H;
+      if (nearPath(x, y, 26) || inPond(x, y, 12)) continue;
+      g.fillStyle = petals[Math.floor(rnd() * petals.length)];
+      g.beginPath(); g.arc(x, y, 2.2, 0, Math.PI * 2); g.fill();
+      g.fillStyle = "#F2C14E"; g.fillRect(x - 0.6, y - 0.6, 1.2, 1.2);
+    }
+  })();
+  function strokePath(g) {
+    g.beginPath(); g.moveTo(path[0][0], path[0][1]);
+    for (let i = 1; i < path.length; i++) g.lineTo(path[i][0], path[i][1]);
+    g.stroke();
+  }
+  function nearPath(x, y, d) {
+    for (let i = 0; i < path.length - 1; i++) {
+      const [ax, ay] = path[i], [bx, by] = path[i + 1];
+      const vx = bx - ax, vy = by - ay;
+      const t = Math.max(0, Math.min(1, ((x - ax) * vx + (y - ay) * vy) / (vx * vx + vy * vy)));
+      if (Math.hypot(x - (ax + t * vx), y - (ay + t * vy)) < d) return true;
+    }
+    return false;
+  }
+  function inPond(x, y, pad) {
+    const dx = (x - pond.x) / (pond.rx + pad), dy = (y - pond.y) / (pond.ry + pad);
+    return dx * dx + dy * dy < 1;
+  }
+
+  // ---------- drawing ----------
+  function drawTree(t) {
+    ctx.fillStyle = "rgba(0,0,0,0.16)";
+    ctx.beginPath(); ctx.ellipse(t.x, t.y + 14, 18, 6, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#7A5233"; ctx.fillRect(t.x - 4, t.y - 2, 8, 16);
+    ctx.fillStyle = "#3F7A4E";
+    ctx.beginPath(); ctx.arc(t.x, t.y - 12, 20, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#4F9160";
+    ctx.beginPath(); ctx.arc(t.x - 6, t.y - 17, 12, 0, Math.PI * 2); ctx.fill();
+  }
+  function drawBench(time) {
+    if (collected === memories.length) {
+      const glow = 0.35 + 0.25 * Math.sin(time / 300);
+      ctx.fillStyle = `rgba(242,193,78,${glow})`;
+      ctx.beginPath(); ctx.arc(bench.x, bench.y, 34, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.fillStyle = "rgba(0,0,0,0.16)";
+    ctx.beginPath(); ctx.ellipse(bench.x, bench.y + 12, 24, 5, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#6B4426";
+    ctx.fillRect(bench.x - 20, bench.y + 2, 4, 10); ctx.fillRect(bench.x + 16, bench.y + 2, 4, 10);
+    ctx.fillStyle = "#9C6B3F";
+    ctx.fillRect(bench.x - 24, bench.y - 2, 48, 6);
+    ctx.fillRect(bench.x - 24, bench.y - 14, 48, 5);
+    ctx.fillRect(bench.x - 24, bench.y - 7, 48, 3);
+  }
+  function heartPath(c, x, y, s) {
+    c.beginPath();
+    c.moveTo(x, y + s * 0.35);
+    c.bezierCurveTo(x - s, y - s * 0.3, x - s * 0.45, y - s, x, y - s * 0.45);
+    c.bezierCurveTo(x + s * 0.45, y - s, x + s, y - s * 0.3, x, y + s * 0.35);
+    c.closePath();
+  }
+  function drawMemory(m, time) {
+    const bob = reduceMotion ? 0 : Math.sin(time / 400 + m.i) * 3;
+    const pulse = 0.25 + 0.15 * Math.sin(time / 350 + m.i);
+    ctx.fillStyle = `rgba(255,236,170,${pulse})`;
+    ctx.beginPath(); ctx.arc(m.x, m.y + bob - 4, 18, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "rgba(0,0,0,0.15)";
+    ctx.beginPath(); ctx.ellipse(m.x, m.y + 10, 8, 3, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#E2557E";
+    heartPath(ctx, m.x, m.y + bob - 2, 11); ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,0.6)";
+    ctx.beginPath(); ctx.arc(m.x - 4, m.y + bob - 8, 2, 0, Math.PI * 2); ctx.fill();
+  }
+  function drawPlayer(time) {
+    const p = player;
+    const bob = p.moving && !reduceMotion ? Math.abs(Math.sin(p.step * 9)) * 2.5 : 0;
+    ctx.fillStyle = "rgba(0,0,0,0.2)";
+    ctx.beginPath(); ctx.ellipse(p.x, p.y + 12, 10, 4, 0, 0, Math.PI * 2); ctx.fill();
+    // legs
+    const swing = p.moving && !reduceMotion ? Math.sin(p.step * 9) * 3 : 0;
+    ctx.fillStyle = "#2A1D45";
+    ctx.fillRect(p.x - 5 + swing, p.y + 4 - bob, 4, 8);
+    ctx.fillRect(p.x + 1 - swing, p.y + 4 - bob, 4, 8);
+    // body
+    ctx.fillStyle = "#5A3D85";
+    roundRect(ctx, p.x - 8, p.y - 8 - bob, 16, 15, 5); ctx.fill();
+    // head
+    ctx.fillStyle = "#C68B62";
+    ctx.beginPath(); ctx.arc(p.x, p.y - 15 - bob, 8, 0, Math.PI * 2); ctx.fill();
+    // hair
+    ctx.fillStyle = "#3A2418";
+    ctx.beginPath(); ctx.arc(p.x, p.y - 18 - bob, 8, Math.PI, Math.PI * 2); ctx.fill();
+    // eye
+    ctx.fillStyle = "#1F1A2E";
+    ctx.fillRect(p.x + 2.5 * p.face - 1, p.y - 15 - bob, 2, 2.5);
+  }
+  function roundRect(c, x, y, w, h, r) {
+    c.beginPath(); c.moveTo(x + r, y);
+    c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r);
+    c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath();
+  }
+
+  function draw(time) {
+    ctx.drawImage(ground, 0, 0, W, H);
+    // the afternoon gets warmer with every memory
+    if (collected) { ctx.fillStyle = `rgba(255,150,90,${0.04 * collected})`; ctx.fillRect(0, 0, W, H); }
+    drawBench(time);
+    for (const m of memories) if (!m.got) drawMemory(m, time);
+    const behind = trees.filter(t => t.y + 6 <= player.y), front = trees.filter(t => t.y + 6 > player.y);
+    behind.forEach(drawTree);
+    drawPlayer(time);
+    front.forEach(drawTree);
+  }
+
+  // ---------- movement ----------
+  const SPEED = 120;
+  function blocked(x, y) {
+    if (x < 10 || x > W - 10 || y < 22 || y > H - 12) return true;
+    for (const o of obstacles) if (Math.hypot(x - o.x, y - o.y) < o.r + 8) return true;
+    return false;
+  }
+  function update(dt) {
+    let dx = 0, dy = 0;
+    if (keys.has("ArrowLeft") || keys.has("a")) dx -= 1;
+    if (keys.has("ArrowRight") || keys.has("d")) dx += 1;
+    if (keys.has("ArrowUp") || keys.has("w")) dy -= 1;
+    if (keys.has("ArrowDown") || keys.has("s")) dy += 1;
+    if (dx || dy) target = null;
+    else if (target) {
+      const tx = target.x - player.x, ty = target.y - player.y, d = Math.hypot(tx, ty);
+      if (d < 3) target = null; else { dx = tx / d; dy = ty / d; }
+    }
+    const len = Math.hypot(dx, dy);
+    player.moving = len > 0;
+    if (!len) return;
+    dx /= len; dy /= len;
+    if (dx) player.face = dx > 0 ? 1 : -1;
+    const nx = player.x + dx * SPEED * dt, ny = player.y + dy * SPEED * dt;
+    if (!blocked(nx, ny)) { player.x = nx; player.y = ny; }
+    else if (!blocked(nx, player.y)) player.x = nx;
+    else if (!blocked(player.x, ny)) player.y = ny;
+    else target = null;
+    player.step += dt;
+    hideHint();
+
+    for (const m of memories) {
+      if (!m.got && Math.hypot(player.x - m.x, player.y - m.y) < 20) { collect(m); break; }
+    }
+    if (collected === memories.length && Math.hypot(player.x - bench.x, player.y - (bench.y + 14)) < 30) askQuestion();
+  }
+
+  // ---------- story beats ----------
+  const placeholder = '<div class="ph"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg><span>Your photo goes here</span></div>';
+  const $ = (id) => document.getElementById(id);
+  function show(id) { ["titleScreen", "memoryScreen", "questionScreen", "sadScreen", "endScreen"].forEach(s => $(s).classList.toggle("show", s === id)); }
+
+  function collect(m) {
+    m.got = true; collected++;
+    keys.clear(); target = null;
+    $("count").innerHTML = "&#10084; " + collected + " / " + memories.length;
+    const data = STORY.memories[m.i] || { title: "A memory", text: "" };
+    $("memTitle").textContent = data.title;
+    $("memText").textContent = data.text;
+    const ph = $("memPhoto");
+    ph.innerHTML = "";
+    $("memCredit").textContent = data.photo && data.credit ? "Photo: " + data.credit + " on Unsplash" : "";
+    if (data.photo) {
+      const img = new Image(); img.alt = data.title;
+      img.onerror = () => { ph.innerHTML = placeholder; $("memCredit").textContent = ""; };
+      img.src = data.photo; ph.appendChild(img);
+    } else {
+      ph.innerHTML = placeholder;
+    }
+    $("memBtn").textContent = collected === memories.length ? "Find the bench" : "Keep walking";
+    state = "card"; show("memoryScreen");
+    chime(collected);
+    setTimeout(() => $("memBtn").focus(), 30);
+  }
+
+  let dodges = 0;
+  function askQuestion() {
+    state = "question"; keys.clear(); target = null;
+    $("qText").textContent = STORY.to + ", " + STORY.question;
+    $("yesBtn").textContent = STORY.yes;
+    resetNo();
+    show("questionScreen");
+    melody([523, 659, 784]);
+    setTimeout(() => $("yesBtn").focus(), 30);
+  }
+  function resetNo() {
+    dodges = 0;
+    const no = $("noBtn");
+    no.textContent = STORY.no; no.className = "btn big ghost";
+    no.style.left = "50%"; no.style.top = "0px"; no.style.transform = "translateX(10%)";
+  }
+  function dodge(e) {
+    if (state !== "question") return;
+    const no = $("noBtn");
+    if (dodges >= 2) return;
+    if (e) e.preventDefault();
+    dodges++;
+    if (dodges >= 2) no.textContent = STORY.stillNo;
+    // jump to a random spot in the answer area that doesn't cover the Yes button
+    const area = $("answers"), yes = $("yesBtn");
+    const aw = area.clientWidth, bw = no.offsetWidth, bh = no.offsetHeight;
+    const ar = area.getBoundingClientRect(), b = yes.getBoundingClientRect();
+    const yr = { x: b.left - ar.left, y: b.top - ar.top, w: b.width, h: b.height };
+    let x = 0, y = 0;
+    for (let tries = 0; tries < 20; tries++) {
+      x = Math.random() * Math.max(0, aw - bw);
+      y = Math.random() * Math.max(0, area.clientHeight - bh);
+      const overlaps = x < yr.x + yr.w + 8 && x + bw + 8 > yr.x && y < yr.y + yr.h + 8 && y + bh + 8 > yr.y;
+      if (!overlaps) break;
+    }
+    no.style.transform = "none";
+    no.style.left = x + "px"; no.style.top = y + "px";
+  }
+  function sayNo() {
+    state = "sad";
+    $("sadTitle").textContent = STORY.sadTitle;
+    $("sadText").textContent = STORY.sad;
+    $("mindBtn").textContent = STORY.changedMind;
+    const ph = $("sadPhoto");
+    ph.innerHTML = "";
+    $("sadCredit").textContent = STORY.sadPhoto && STORY.sadCredit ? "Photo: " + STORY.sadCredit + " on Unsplash" : "";
+    if (STORY.sadPhoto) {
+      const img = new Image(); img.alt = "A very sad cat";
+      img.onerror = () => { ph.innerHTML = placeholder; $("sadCredit").textContent = ""; };
+      img.src = STORY.sadPhoto; ph.appendChild(img);
+    } else ph.innerHTML = placeholder;
+    show("sadScreen");
+    melody([392, 349, 311]);
+    setTimeout(() => $("mindBtn").focus(), 30);
+  }
+  function sayYes() {
+    state = "end";
+    $("endTitle").textContent = STORY.endingTitle;
+    $("endText").textContent = STORY.ending;
+    show("endScreen");
+    melody([523, 659, 784, 1047]);
+    confetti();
+    setTimeout(() => $("againBtn").focus(), 30);
+  }
+
+  function restart() {
+    memories.forEach(m => m.got = false);
+    collected = 0; $("count").innerHTML = "&#10084; 0 / " + memories.length;
+    player.x = 26; player.y = 344; target = null; keys.clear();
+    parts.length = 0;
+    state = "play"; show(null);
+  }
+
+  // ---------- celebration ----------
+  const parts = [];
+  function confetti() {
+    const n = reduceMotion ? 30 : 160;
+    const colors = ["#F2C14E", "#E2557E", "#C9B2EC", "#FFFFFF", "#5A3D85"];
+    for (let i = 0; i < n; i++) {
+      parts.push({ x: W / 2 + (Math.random() - 0.5) * 80, y: H / 2, vx: (Math.random() - 0.5) * 360, vy: -120 - Math.random() * 260,
+        r: 2 + Math.random() * 3, c: colors[i % colors.length], heart: Math.random() < 0.3, life: 2.6 + Math.random() });
+    }
+  }
+  function updateFx(dt) {
+    fctx.clearRect(0, 0, W, H);
+    for (let i = parts.length - 1; i >= 0; i--) {
+      const p = parts[i];
+      p.vy += 300 * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt;
+      if (p.life <= 0 || p.y > H + 20) { parts.splice(i, 1); continue; }
+      fctx.fillStyle = p.c;
+      if (p.heart) { heartPath(fctx, p.x, p.y, p.r * 2.2); fctx.fill(); }
+      else fctx.fillRect(p.x, p.y, p.r * 2, p.r);
+    }
+  }
+
+  // ---------- sound (tiny, made in the browser) ----------
+  let audio = null, muted = false;
+  function tone(freq, when, dur, vol) {
+    if (!audio || muted) return;
+    const o = audio.createOscillator(), g = audio.createGain();
+    o.type = "triangle"; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, audio.currentTime + when);
+    g.gain.exponentialRampToValueAtTime(vol, audio.currentTime + when + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + when + dur);
+    o.connect(g).connect(audio.destination);
+    o.start(audio.currentTime + when); o.stop(audio.currentTime + when + dur + 0.05);
+  }
+  function chime(n) { const base = [523, 587, 659, 698, 784][(n - 1) % 5]; tone(base, 0, 0.35, 0.12); tone(base * 1.5, 0.08, 0.35, 0.08); }
+  function melody(notes) { notes.forEach((f, i) => tone(f, i * 0.14, 0.4, 0.12)); }
+
+  // ---------- input ----------
+  const KEYMAP = { ArrowLeft: 1, ArrowRight: 1, ArrowUp: 1, ArrowDown: 1, a: 1, d: 1, w: 1, s: 1 };
+  window.addEventListener("keydown", (e) => {
+    if (state !== "play") return;
+    const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+    if (KEYMAP[k]) { keys.add(k); e.preventDefault(); }
+  });
+  window.addEventListener("keyup", (e) => { const k = e.key.length === 1 ? e.key.toLowerCase() : e.key; keys.delete(k); });
+  window.addEventListener("blur", () => keys.clear());
+  view.addEventListener("pointerdown", (e) => {
+    if (state !== "play") return;
+    const r = view.getBoundingClientRect();
+    target = { x: (e.clientX - r.left) / r.width * W, y: (e.clientY - r.top) / r.height * H };
+  });
+
+  $("startBtn").addEventListener("click", () => {
+    try { audio = new (window.AudioContext || window.webkitAudioContext)(); } catch (err) { audio = null; }
+    state = "play"; show(null); view.focus();
+  });
+  $("memBtn").addEventListener("click", () => { state = "play"; show(null); });
+  $("yesBtn").addEventListener("click", sayYes);
+  const no = $("noBtn");
+  no.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") dodge(e); });
+  no.addEventListener("click", (e) => { if (dodges >= 2) sayNo(); else dodge(e); });
+  $("mindBtn").addEventListener("click", sayYes);
+  $("sadAgainBtn").addEventListener("click", restart);
+  $("againBtn").addEventListener("click", restart);
+  $("mute").addEventListener("click", () => {
+    muted = !muted;
+    $("mute").textContent = muted ? "Sound off" : "Sound on";
+    $("mute").setAttribute("aria-pressed", String(muted));
+  });
+  let hintHidden = false;
+  function hideHint() { if (!hintHidden) { hintHidden = true; setTimeout(() => $("hint").style.opacity = "0", 1500); } }
+
+  $("titleText").textContent = "A little walk for " + STORY.to;
+  view.tabIndex = 0;
+
+  // ---------- main loop ----------
+  function frame(now) {
+    const dt = Math.min(0.05, (now - t0) / 1000); t0 = now;
+    if (state === "play") update(dt);
+    draw(now);
+    updateFx(dt);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  // exposed for automated testing only
+  window.__walk = { memories, bench, player, get state() { return state; } };
+})();
+</script>
+</body>
+</html>

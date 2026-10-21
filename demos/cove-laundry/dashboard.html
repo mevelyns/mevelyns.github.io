@@ -1,0 +1,927 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cove Laundry Dashboard</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+  /* ---------------------------------------------------------------
+     Palette. Categorical slots are the validated three-slot set
+     (blue / orange / aqua); every single-series chart uses the brand
+     navy instead. Dark steps are chosen for the dark surface, not
+     flipped from the light ones.
+     --------------------------------------------------------------- */
+  :root {
+    color-scheme: light;
+    --plane:        #f2f5f9;
+    --surface:      #ffffff;
+    --ink:          #1a2b45;
+    --ink-2:        #52616f;
+    --muted:        #6b7e99;
+    --grid:         #e6ecf4;
+    --axis:         #c9d4e2;
+    --border:       rgba(26,43,69,0.12);
+
+    --brand:        #1b3a6b;
+    --brand-soft:   #2a78d6;
+
+    --s1:           #2a78d6;  /* in progress */
+    --s2:           #eb6834;  /* pending     */
+    --s3:           #1baf7a;  /* completed   */
+
+    --good:         #0ca30c;
+    --warn:         #c77b1e;
+    --crit:         #d03b3b;
+
+    --shadow: 0 1px 2px rgba(26,43,69,.06), 0 4px 16px rgba(26,43,69,.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --plane:      #0e1116;
+      --surface:    #151a21;
+      --ink:        #ffffff;
+      --ink-2:      #c3cad4;
+      --muted:      #8d9aac;
+      --grid:       #232a34;
+      --axis:       #313a46;
+      --border:     rgba(255,255,255,0.12);
+
+      --brand:      #5598e7;
+      --brand-soft: #3987e5;
+
+      --s1:         #3987e5;
+      --s2:         #d95926;
+      --s3:         #199e70;
+
+      --good:       #0ca30c;
+      --warn:       #fab219;
+      --crit:       #d03b3b;
+
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.3);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --plane:      #0e1116;
+    --surface:    #151a21;
+    --ink:        #ffffff;
+    --ink-2:      #c3cad4;
+    --muted:      #8d9aac;
+    --grid:       #232a34;
+    --axis:       #313a46;
+    --border:     rgba(255,255,255,0.12);
+
+    --brand:      #5598e7;
+    --brand-soft: #3987e5;
+
+    --s1:         #3987e5;
+    --s2:         #d95926;
+    --s3:         #199e70;
+
+    --good:       #0ca30c;
+    --warn:       #fab219;
+    --crit:       #d03b3b;
+
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.3);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--plane);
+    color: var(--ink);
+    font: 14px/1.5 "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+    padding-block: 24px 64px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+
+  header.top {
+    display: flex; flex-wrap: wrap; align-items: baseline;
+    gap: 12px; margin-bottom: 4px;
+  }
+  h1 { font-family: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif; font-size: 26px; font-weight: 800; margin: 0; letter-spacing: -0.02em; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand svg { width: 38px; height: 38px; flex: none; }
+  .brand .co { display: block; color: var(--muted); font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+  a.ctl { text-decoration: none; display: inline-flex; align-items: center; }
+  .demo-pill { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; background: var(--grid); color: var(--ink-2); font-size: 11.5px; font-weight: 600; vertical-align: 1px; }
+  .sep { width: 1px; align-self: stretch; background: var(--border); margin: 0 4px; }
+  .sub { color: var(--muted); font-size: 13px; margin: 0 0 20px; }
+  .spacer { flex: 1; }
+
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+    margin-bottom: 20px;
+  }
+  button.ctl {
+    font: inherit; color: var(--ink-2);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px; padding: 7px 13px; cursor: pointer;
+  }
+  button.ctl:hover { color: var(--ink); }
+  a.ctl {
+    font: inherit; color: var(--ink-2); background: var(--surface);
+    border: 1px solid var(--border); border-radius: 8px; padding: 7px 13px;
+  }
+  a.ctl:hover { color: var(--ink); }
+  button.ctl[aria-pressed="true"] {
+    background: var(--brand); border-color: var(--brand);
+    color: #fff; font-weight: 600;
+  }
+  :root[data-theme="dark"] button.ctl[aria-pressed="true"] { color: #0e1116; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) button.ctl[aria-pressed="true"] { color: #0e1116; }
+  }
+
+  .tiles {
+    display: grid; gap: 12px; margin-bottom: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  }
+  .customrange {
+    display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px 8px;
+    padding: 4px 4px 4px 10px; border: 1px solid var(--border);
+    border-radius: 8px; background: var(--surface);
+  }
+  .customrange label { color: var(--muted); font-size: 12px; }
+  .customrange input[type="date"] {
+    font: inherit; font-size: 13px; color: var(--ink);
+    background: var(--plane); border: 1px solid var(--border);
+    border-radius: 6px; padding: 4px 7px;
+  }
+  .customrange input[type="date"]:focus-visible,
+  button.ctl:focus-visible { outline: 2px solid var(--brand-soft); outline-offset: 2px; }
+  .customrange .rangeinfo { color: var(--muted); font-size: 12px; padding: 0 6px; }
+
+  .tile {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; box-shadow: var(--shadow);
+  }
+  .tile .label { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+  .tile .value { font-size: 30px; font-weight: 650; letter-spacing: -0.02em; line-height: 1.1; }
+  .tile .value .unit { font-size: 15px; font-weight: 500; color: var(--ink-2); margin-left: 3px; }
+  .tile .foot { color: var(--muted); font-size: 12px; margin-top: 6px; }
+
+  .grid {
+    display: grid; gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  }
+  @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px 18px 12px; box-shadow: var(--shadow);
+    min-width: 0;
+  }
+  .card.wide { grid-column: 1 / -1; }
+  .card h2 { font-size: 15px; margin: 0 0 2px; font-weight: 620; }
+  .card .hint { color: var(--muted); font-size: 12px; margin: 0 0 14px; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; margin: 0 0 12px; }
+  .legend .item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-2); }
+  .legend .swatch { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+
+  svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .tick { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+  .dlabel { fill: var(--ink-2); font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .gridline { stroke: var(--grid); stroke-width: 1; }
+  .baseline { stroke: var(--axis); stroke-width: 1; }
+
+  .empty { color: var(--muted); font-size: 13px; padding: 28px 0 34px; text-align: center; }
+
+  #tip {
+    position: fixed; pointer-events: none; opacity: 0; transition: opacity .1s;
+    background: var(--surface); color: var(--ink);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 10px; font-size: 12px; box-shadow: var(--shadow);
+    z-index: 20; white-space: nowrap;
+  }
+  #tip .t-title { font-weight: 650; margin-bottom: 2px; }
+  #tip .t-row { color: var(--ink-2); font-variant-numeric: tabular-nums; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--grid); }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .tablewrap { overflow-x: auto; margin-top: 6px; }
+
+  .status {
+    padding: 14px 16px; border-radius: 10px; margin-bottom: 16px;
+    border: 1px solid var(--border); background: var(--surface); font-size: 13px;
+  }
+  .status.err { border-color: var(--crit); }
+  .status code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; }
+  .hide { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="11" fill="#1f4e8c"/><path d="M9 25c3.2-3 6.4-3 9.6 0s6.4 3 9.6 0" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M9 19c3.2-3 6.4-3 9.6 0s6.4 3 9.6 0" fill="none" stroke="#e2b261" stroke-width="2.4" stroke-linecap="round"/><circle cx="29" cy="11" r="3" fill="#e2b261"/></svg>
+      <div><span class="co">Cobalt Cove Hotel</span><h1>Cove Laundry</h1></div>
+    </div>
+    <div class="spacer"></div>
+    <a class="ctl" href="index.html">Back to the app</a>
+    <button class="ctl" id="themeBtn" type="button">Dark mode</button>
+    <button class="ctl" id="refreshBtn" type="button">Refresh</button>
+  </header>
+  <p class="sub" id="updated">Loading…</p>
+
+  <div class="status hide" id="statusBox"></div>
+
+  <div class="controls" id="rangeCtls">
+    <span style="color:var(--muted);font-size:12px;margin-right:2px;">Period</span>
+    <button class="ctl" data-days="7"   type="button">7 days</button>
+    <button class="ctl" data-days="30"  type="button" aria-pressed="true">30 days</button>
+    <button class="ctl" data-days="90"  type="button">90 days</button>
+    <button class="ctl" data-days="custom" type="button">Custom</button>
+    <span class="customrange hide" id="customRange">
+      <label for="fromDate">From</label>
+      <input type="date" id="fromDate">
+      <label for="toDate">To</label>
+      <input type="date" id="toDate">
+      <span class="rangeinfo" id="rangeInfo"></span>
+    </span>
+    <button class="ctl" data-days="0"   type="button">All time</button>
+    <span class="sep" aria-hidden="true"></span>
+    <span id="siteCtls" style="display:inline-flex;flex-wrap:wrap;gap:8px;align-items:center">
+      <span style="color:var(--muted);font-size:12px;margin-right:2px;">Site</span>
+      <button class="ctl" data-site="all" type="button" aria-pressed="true">Both</button>
+      <button class="ctl" data-site="harbour" type="button">Harbour Wing</button>
+      <button class="ctl" data-site="garden" type="button">Garden Suites</button>
+    </span>
+    <div class="spacer"></div>
+    <button class="ctl" id="tableBtn" type="button" aria-pressed="false">Show tables</button>
+  </div>
+
+  <section class="tiles" id="tiles"></section>
+
+  <section class="grid" id="charts"></section>
+
+</div>
+<div id="tip" role="status" aria-live="polite"></div>
+
+<script src="demo-data.js"></script>
+<script>
+/* =====================================================================
+   Cove Laundry dashboard (portfolio demo)
+
+   A plain HTML file. The real version reads live orders from Supabase;
+   this copy reads made-up data for a fictional hotel from demo-data.js,
+   so it works anywhere with no backend.
+
+   No libraries — every chart is hand-drawn SVG, so nothing needs to load
+   from the internet except your own data.
+   ===================================================================== */
+
+/* Portfolio demo: instead of Supabase, this reads the fictional
+   Cobalt Cove Hotel data from demo-data.js, plus any orders made in the
+   app demo in this browser. Field names match the real orders and
+   order_items tables, so everything below this block is unchanged. */
+
+const state = { orders: [], items: [], days: 30, custom: null, showTables: false, site: "all" };
+// state.custom = { from: "YYYY-MM-DD", to: "YYYY-MM-DD" } while the Custom period is active, else null.
+
+/* ---------------------------------------------------------------- data */
+
+function load() {
+  setStatus("");
+  const demo = window.CoveData.load();
+  window.CoveData.save(demo);
+  const orders = [], items = [];
+  demo.orders.forEach((o) => {
+    orders.push({
+      id: o.id, site: o.site, client_name: o.clientName, room_number: o.roomNumber, status: o.status,
+      submitted_at: o.submittedAt, collected_by: o.collectedBy, collected_at: o.collectedAt,
+      completed_by: o.completedBy, completed_at: o.completedAt,
+    });
+    o.items.forEach((it) => items.push({ order_id: o.id, name: it.name, quantity: it.quantity }));
+  });
+  state.orders = orders;
+  state.items = items;
+  document.getElementById("updated").innerHTML =
+    `${orders.length.toLocaleString()} orders loaded · updated ${escapeHtml(new Date().toLocaleString())}` +
+    `<span class="demo-pill">Demo data · fictional hotel</span>`;
+  render();
+}
+
+function setStatus(html, isError) {
+  const box = document.getElementById("statusBox");
+  box.classList.toggle("hide", !html);
+  box.classList.toggle("err", !!isError);
+  box.innerHTML = html;
+}
+
+/* ------------------------------------------------------------- helpers */
+
+const escapeHtml = (s) => String(s).replace(/[&<>"']/g, (c) =>
+  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+const dayKey = (d) => {
+  const t = new Date(d);
+  return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}-${String(t.getDate()).padStart(2, "0")}`;
+};
+const shortDay = (key) => {
+  const [y, m, d] = key.split("-").map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString(undefined, { day: "numeric", month: "short" });
+};
+
+/** Turnaround in hours, rendered as the unit that reads best. */
+function fmtDuration(hours) {
+  if (hours == null || !isFinite(hours)) return { value: "—", unit: "" };
+  if (hours < 1) return { value: Math.round(hours * 60).toString(), unit: "min" };
+  if (hours < 48) return { value: (Math.round(hours * 10) / 10).toString(), unit: "hrs" };
+  return { value: (Math.round((hours / 24) * 10) / 10).toString(), unit: "days" };
+}
+
+const parseKey = (key) => { const [y, m, d] = key.split("-").map(Number); return new Date(y, m - 1, d); };
+
+/** Custom range as local-time bounds: from 00:00 of the first day up to (not incl.) 00:00 after the last day. */
+function customBounds() {
+  const from = parseKey(state.custom.from), to = parseKey(state.custom.to);
+  return { start: from.getTime(), end: new Date(to.getFullYear(), to.getMonth(), to.getDate() + 1).getTime() };
+}
+
+/** Human label for the active period, e.g. "last 30 days", "all time", "12 Aug – 15 Sep 2026". */
+function periodLabel() {
+  if (state.custom) {
+    const f = parseKey(state.custom.from), t = parseKey(state.custom.to);
+    const o = { day: "numeric", month: "short" };
+    const fs = f.toLocaleDateString(undefined, f.getFullYear() === t.getFullYear() ? o : { ...o, year: "numeric" });
+    const ts = t.toLocaleDateString(undefined, { ...o, year: "numeric" });
+    return state.custom.from === state.custom.to ? ts : `${fs} – ${ts}`;
+  }
+  return state.days ? `last ${state.days} days` : "all time";
+}
+
+function inRange(iso) {
+  const t = new Date(iso).getTime();
+  if (state.custom) { const b = customBounds(); return t >= b.start && t < b.end; }
+  if (!state.days) return true;
+  return t >= Date.now() - state.days * 864e5;
+}
+
+function filtered() {
+  return state.orders.filter((o) => o.submitted_at && inRange(o.submitted_at) &&
+    (state.site === "all" || o.site === state.site));
+}
+
+/* --------------------------------------------------------------- charts
+   Shared mark specs: bars are anchored to the baseline with 4px rounded
+   data-ends only, adjacent marks keep a 2px surface gap, lines are 2px
+   with >=8px markers, grid and axes stay recessive.
+   ---------------------------------------------------------------------- */
+
+const NS = "http://www.w3.org/2000/svg";
+const el = (n, attrs = {}) => {
+  const node = document.createElementNS(NS, n);
+  for (const k in attrs) node.setAttribute(k, attrs[k]);
+  return node;
+};
+
+/** Bar with rounded top corners, square where it meets the baseline. */
+function barPath(x, y, w, h, r = 4) {
+  const rr = Math.max(0, Math.min(r, w / 2, h));
+  if (h <= 0) return "";
+  return `M${x},${y + h} V${y + rr} Q${x},${y} ${x + rr},${y} H${x + w - rr} Q${x + w},${y} ${x + w},${y + rr} V${y + h} Z`;
+}
+
+function niceTicks(max, count = 4) {
+  if (max <= 0) return [0, 1];
+  const raw = max / count;
+  const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((s) => s >= raw) || mag * 10;
+  // The top tick must be >= max. Stopping at the last tick *below* max lets
+  // the tallest marks render above the plot area and collide with the text
+  // above the chart.
+  const steps = Math.ceil(max / step - 1e-9);
+  const ticks = [];
+  for (let i = 0; i <= steps; i++) ticks.push(Math.round(i * step * 1000) / 1000);
+  return ticks;
+}
+
+const tip = document.getElementById("tip");
+function showTip(evt, title, rows) {
+  tip.innerHTML = `<div class="t-title">${escapeHtml(title)}</div>` +
+    rows.map((r) => `<div class="t-row">${escapeHtml(r)}</div>`).join("");
+  tip.style.opacity = "1";
+  moveTip(evt);
+}
+function moveTip(evt) {
+  const pad = 14;
+  let x = evt.clientX + pad, y = evt.clientY + pad;
+  const r = tip.getBoundingClientRect();
+  if (x + r.width > window.innerWidth - 8) x = evt.clientX - r.width - pad;
+  if (y + r.height > window.innerHeight - 8) y = evt.clientY - r.height - pad;
+  tip.style.left = x + "px";
+  tip.style.top = y + "px";
+}
+const hideTip = () => { tip.style.opacity = "0"; };
+
+/** Vertical bars over time. Single series → no legend; the title names it. */
+function vBars(data, { color = "var(--brand)", fmt = (v) => v, unit = "" } = {}) {
+  const W = 720, H = 240, L = 44, R = 8, T = 12, B = 30;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img" });
+  if (!data.length) return svg;
+
+  const max = Math.max(...data.map((d) => d.value), 0);
+  const ticks = niceTicks(max);
+  const top = ticks[ticks.length - 1] || 1;
+  const plotW = W - L - R, plotH = H - T - B;
+  const y = (v) => T + plotH - (v / top) * plotH;
+
+  ticks.forEach((t) => {
+    svg.appendChild(el("line", { x1: L, x2: W - R, y1: y(t), y2: y(t), class: t === 0 ? "baseline" : "gridline" }));
+    const lbl = el("text", { x: L - 8, y: y(t) + 4, class: "tick", "text-anchor": "end" });
+    lbl.textContent = fmt(t);
+    svg.appendChild(lbl);
+  });
+
+  const band = plotW / data.length;
+  const bw = Math.max(2, Math.min(34, band - 2)); // 2px surface gap between bars
+
+  data.forEach((d, i) => {
+    const x = L + i * band + (band - bw) / 2;
+    const h = (d.value / top) * plotH;
+    if (h > 0) svg.appendChild(el("path", { d: barPath(x, y(d.value), bw, h), fill: color }));
+
+    const hit = el("rect", { x: L + i * band, y: T, width: band, height: plotH, fill: "transparent" });
+    hit.addEventListener("mouseenter", (e) => showTip(e, d.label, [`${fmt(d.value)}${unit ? " " + unit : ""}`]));
+    hit.addEventListener("mousemove", moveTip);
+    hit.addEventListener("mouseleave", hideTip);
+    svg.appendChild(hit);
+  });
+
+  // Selective x labels only — never one per bar. The last point is always
+  // labelled, so any regular tick landing too close to it is dropped
+  // rather than left to overprint it.
+  const xAt = (i) => L + i * band + band / 2;
+  placeTicks(svg, data, xAt, H, W);
+  return svg;
+}
+
+/** Shared x-axis tick placement with collision avoidance. */
+function placeTicks(svg, data, xAt, H, W) {
+  const MIN_GAP = 46;
+  const every = Math.max(1, Math.ceil(data.length / 8));
+  const lastX = xAt(data.length - 1);
+  const wanted = [];
+  for (let i = 0; i < data.length - 1; i++) {
+    if (i % every === 0) wanted.push(i);
+  }
+  wanted.push(data.length - 1);
+
+  let prevX = -Infinity;
+  wanted.forEach((i, n) => {
+    const x = xAt(i);
+    const isLast = n === wanted.length - 1;
+    if (!isLast && (lastX - x < MIN_GAP || x - prevX < MIN_GAP)) return;
+    if (isLast && x - prevX < MIN_GAP && wanted.length > 1) {
+      // keep the last label; it wins ties
+    }
+    const t = el("text", { x, y: H - 10, class: "tick", "text-anchor": "middle" });
+    t.textContent = data[i].short;
+    svg.appendChild(t);
+    prevX = x;
+  });
+}
+
+/** Line over time with a crosshair. */
+function line(data, { color = "var(--brand)", fmt = (v) => v, unit = "" } = {}) {
+  const W = 720, H = 240, L = 44, R = 8, T = 12, B = 30;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img" });
+  const pts = data.filter((d) => d.value != null);
+  if (pts.length === 0) return svg;
+
+  const max = Math.max(...pts.map((d) => d.value), 0);
+  const ticks = niceTicks(max);
+  const top = ticks[ticks.length - 1] || 1;
+  const plotW = W - L - R, plotH = H - T - B;
+  const y = (v) => T + plotH - (v / top) * plotH;
+  const x = (i) => L + (data.length === 1 ? plotW / 2 : (i / (data.length - 1)) * plotW);
+
+  ticks.forEach((t) => {
+    svg.appendChild(el("line", { x1: L, x2: W - R, y1: y(t), y2: y(t), class: t === 0 ? "baseline" : "gridline" }));
+    const lbl = el("text", { x: L - 8, y: y(t) + 4, class: "tick", "text-anchor": "end" });
+    lbl.textContent = fmt(t);
+    svg.appendChild(lbl);
+  });
+
+  let d = "", open = false;
+  data.forEach((p, i) => {
+    if (p.value == null) { open = false; return; }
+    d += (open ? "L" : "M") + x(i) + "," + y(p.value);
+    open = true;
+  });
+  svg.appendChild(el("path", { d, fill: "none", stroke: color, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }));
+
+  data.forEach((p, i) => {
+    if (p.value == null) return;
+    // 2px surface ring so overlapping marks stay separable.
+    svg.appendChild(el("circle", { cx: x(i), cy: y(p.value), r: 4, fill: color, stroke: "var(--surface)", "stroke-width": 2 }));
+  });
+
+  const band = plotW / Math.max(1, data.length - 1);
+  data.forEach((p, i) => {
+    const hit = el("rect", { x: x(i) - band / 2, y: T, width: band, height: plotH, fill: "transparent" });
+    hit.addEventListener("mouseenter", (e) =>
+      showTip(e, p.label, [p.value == null ? "No completed orders" : `${fmt(p.value)}${unit ? " " + unit : ""}`]));
+    hit.addEventListener("mousemove", moveTip);
+    hit.addEventListener("mouseleave", hideTip);
+    svg.appendChild(hit);
+  });
+
+  placeTicks(svg, data, x, H, W);
+  return svg;
+}
+
+/** Horizontal bars for ranked categories, with direct value labels. */
+function hBars(data, { color = "var(--brand)", fmt = (v) => v } = {}) {
+  if (!data.length) return el("svg", { viewBox: "0 0 720 40" });
+  const rowH = 30, gap = 2, W = 720, L = 150, R = 54;
+  const H = data.length * rowH;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img" });
+  const max = Math.max(...data.map((d) => d.value), 1);
+  const plotW = W - L - R;
+
+  data.forEach((d, i) => {
+    const y = i * rowH;
+    const bh = rowH - gap * 2 - 6;
+    const w = Math.max(0, (d.value / max) * plotW);
+
+    const name = el("text", { x: L - 10, y: y + rowH / 2 + 4, class: "tick", "text-anchor": "end" });
+    name.textContent = d.label.length > 22 ? d.label.slice(0, 21) + "…" : d.label;
+    svg.appendChild(name);
+
+    if (w > 0) {
+      // Rounded end at the data end only; the category axis end stays square.
+      const rr = Math.min(4, w);
+      svg.appendChild(el("path", {
+        d: `M${L},${y + (rowH - bh) / 2} H${L + w - rr} Q${L + w},${y + (rowH - bh) / 2} ${L + w},${y + (rowH - bh) / 2 + rr} V${y + (rowH + bh) / 2 - rr} Q${L + w},${y + (rowH + bh) / 2} ${L + w - rr},${y + (rowH + bh) / 2} H${L} Z`,
+        fill: color,
+      }));
+    }
+
+    const val = el("text", { x: L + w + 8, y: y + rowH / 2 + 4, class: "dlabel" });
+    val.textContent = fmt(d.value);
+    svg.appendChild(val);
+
+    const hit = el("rect", { x: 0, y, width: W, height: rowH, fill: "transparent" });
+    hit.addEventListener("mouseenter", (e) => showTip(e, d.label, [d.tipText || fmt(d.value)]));
+    hit.addEventListener("mousemove", moveTip);
+    hit.addEventListener("mouseleave", hideTip);
+    svg.appendChild(hit);
+  });
+  return svg;
+}
+
+/** One stacked bar for status mix, with a 2px surface gap between segments. */
+function stackedBar(segments) {
+  const W = 720, H = 56, r = 6;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img" });
+  const total = segments.reduce((s, x) => s + x.value, 0);
+  if (!total) return svg;
+
+  let x = 0;
+  segments.forEach((seg) => {
+    const w = (seg.value / total) * W;
+    if (w <= 0) return;
+    const drawW = Math.max(0, w - 2); // surface gap between segments
+    // A sliver segment shouldn't render as a rounded pill — scale the
+    // radius down so narrow segments stay legible as slices of a bar.
+    svg.appendChild(el("rect", {
+      x, y: 0, width: drawW, height: 26,
+      rx: Math.min(r, drawW / 2), fill: seg.color,
+    }));
+
+    if (drawW > 44) {
+      const pct = el("text", { x: x + drawW / 2, y: 17, class: "dlabel", "text-anchor": "middle", fill: "#fff" });
+      pct.textContent = Math.round((seg.value / total) * 100) + "%";
+      svg.appendChild(pct);
+    }
+    // Direct label under each segment — this is the relief for the aqua's
+    // sub-3:1 contrast on the light surface, so identity never rests on hue.
+    if (drawW > 64) {
+      const lbl = el("text", { x: x + drawW / 2, y: 46, class: "tick", "text-anchor": "middle" });
+      lbl.textContent = `${seg.label} · ${seg.value}`;
+      svg.appendChild(lbl);
+    }
+
+    const hit = el("rect", { x, y: 0, width: w, height: 26, fill: "transparent" });
+    hit.addEventListener("mouseenter", (e) =>
+      showTip(e, seg.label, [`${seg.value} orders`, `${Math.round((seg.value / total) * 100)}% of total`]));
+    hit.addEventListener("mousemove", moveTip);
+    hit.addEventListener("mouseleave", hideTip);
+    svg.appendChild(hit);
+
+    x += w;
+  });
+  return svg;
+}
+
+/* --------------------------------------------------------------- render */
+
+function card(title, hint, node, tableRows) {
+  const c = document.createElement("section");
+  c.className = "card";
+  c.innerHTML = `<h2>${escapeHtml(title)}</h2><p class="hint">${escapeHtml(hint)}</p>`;
+  if (node) c.appendChild(node);
+  if (tableRows && tableRows.rows.length) {
+    const wrap = document.createElement("div");
+    wrap.className = "tablewrap" + (state.showTables ? "" : " hide");
+    wrap.innerHTML =
+      `<table><thead><tr>${tableRows.head.map((h, i) =>
+        `<th${i ? ' class="num"' : ""}>${escapeHtml(h)}</th>`).join("")}</tr></thead><tbody>` +
+      tableRows.rows.map((r) =>
+        `<tr>${r.map((v, i) => `<td${i ? ' class="num"' : ""}>${escapeHtml(v)}</td>`).join("")}</tr>`).join("") +
+      `</tbody></table>`;
+    c.appendChild(wrap);
+  }
+  return c;
+}
+
+function emptyNote(msg) {
+  const d = document.createElement("div");
+  d.className = "empty";
+  d.textContent = msg;
+  return d;
+}
+
+function render() {
+  const orders = filtered();
+  renderTiles(orders);
+
+  const charts = document.getElementById("charts");
+  charts.innerHTML = "";
+
+  /* --- orders per day --- */
+  const days = buildDaySeries(orders);
+  charts.appendChild(card(
+    "Orders per day",
+    `Baskets submitted, ${periodLabel()}.`,
+    days.length ? vBars(days, { unit: "orders" }) : emptyNote("No orders in this period."),
+    { head: ["Day", "Orders"], rows: days.map((d) => [d.label, String(d.value)]) }
+  ));
+
+  /* --- turnaround --- */
+  const ta = buildTurnaroundSeries(orders);
+  charts.appendChild(card(
+    "Average turnaround",
+    "Hours from a basket being submitted to being marked complete.",
+    ta.some((d) => d.value != null)
+      ? line(ta, { fmt: (v) => (Math.round(v * 10) / 10).toString(), unit: "hrs" })
+      : emptyNote("No completed orders in this period."),
+    { head: ["Day", "Avg hours"], rows: ta.filter((d) => d.value != null).map((d) => [d.label, (Math.round(d.value * 10) / 10).toFixed(1)]) }
+  ));
+
+  /* --- status mix --- */
+  const mix = [
+    { label: "Pending",     value: orders.filter((o) => o.status === "pending").length,     color: "var(--s2)" },
+    { label: "In progress", value: orders.filter((o) => o.status === "in_progress").length, color: "var(--s1)" },
+    { label: "Completed",   value: orders.filter((o) => o.status === "completed").length,   color: "var(--s3)" },
+  ];
+  const mixCard = card("Status mix", "Where every basket in this period currently sits.", null,
+    { head: ["Status", "Orders"], rows: mix.map((m) => [m.label, String(m.value)]) });
+  const legend = document.createElement("div");
+  legend.className = "legend";
+  legend.innerHTML = mix.map((m) =>
+    `<span class="item"><span class="swatch" style="background:${m.color}"></span>${m.label}</span>`).join("");
+  mixCard.insertBefore(legend, mixCard.querySelector(".tablewrap") || null);
+  mixCard.appendChild(orders.length ? stackedBar(mix) : emptyNote("No orders in this period."));
+  if (state.showTables) {
+    const tw = mixCard.querySelector(".tablewrap");
+    if (tw) mixCard.appendChild(tw);
+  }
+  charts.appendChild(mixCard);
+
+  /* --- per staff member --- */
+  const byStaff = countBy(orders.filter((o) => o.status === "completed" && o.completed_by), (o) => o.completed_by)
+    .sort((a, b) => b.value - a.value).slice(0, 10);
+  charts.appendChild(card(
+    "Baskets completed per staff member",
+    "Completed orders only, credited to whoever marked them done.",
+    byStaff.length ? hBars(byStaff) : emptyNote("No completed orders in this period."),
+    { head: ["Staff", "Completed"], rows: byStaff.map((s) => [s.label, String(s.value)]) }
+  ));
+
+  /* --- top items --- */
+  const orderIds = new Set(orders.map((o) => o.id));
+  const itemTotals = {};
+  state.items.forEach((it) => {
+    if (!orderIds.has(it.order_id)) return;
+    const key = (it.name || "").trim().toLowerCase();
+    if (!key) return;
+    const nice = key.charAt(0).toUpperCase() + key.slice(1);
+    itemTotals[nice] = (itemTotals[nice] || 0) + (Number(it.quantity) || 0);
+  });
+  const topItems = Object.entries(itemTotals).map(([label, value]) => ({ label, value }))
+    .sort((a, b) => b.value - a.value).slice(0, 10);
+  charts.appendChild(card(
+    "Most common items",
+    "Total pieces logged across all baskets in this period.",
+    topItems.length ? hBars(topItems, { color: "var(--brand-soft)" }) : emptyNote("No items recorded in this period."),
+    { head: ["Item", "Pieces"], rows: topItems.map((i) => [i.label, String(i.value)]) }
+  ));
+
+  /* --- busiest rooms --- */
+  const byRoom = countBy(orders.filter((o) => o.room_number), (o) => `Room ${o.room_number}`)
+    .sort((a, b) => b.value - a.value).slice(0, 10);
+  charts.appendChild(card(
+    "Busiest rooms",
+    "Which rooms send the most laundry.",
+    byRoom.length ? hBars(byRoom, { color: "var(--brand-soft)" }) : emptyNote("No orders in this period."),
+    { head: ["Room", "Orders"], rows: byRoom.map((r) => [r.label, String(r.value)]) }
+  ));
+}
+
+function countBy(rows, keyFn) {
+  const m = {};
+  rows.forEach((r) => { const k = keyFn(r); if (k) m[k] = (m[k] || 0) + 1; });
+  return Object.entries(m).map(([label, value]) => ({ label, value }));
+}
+
+function dayRange(orders) {
+  const end = new Date(); end.setHours(0, 0, 0, 0);
+  let start;
+  if (state.custom) {
+    start = parseKey(state.custom.from);
+    const to = parseKey(state.custom.to);
+    end.setTime(to.getTime());
+  } else if (state.days) {
+    start = new Date(end.getTime() - (state.days - 1) * 864e5);
+  } else {
+    const oldest = orders.reduce((min, o) => {
+      const t = new Date(o.submitted_at).getTime();
+      return isFinite(t) && t < min ? t : min;
+    }, Date.now());
+    start = new Date(oldest); start.setHours(0, 0, 0, 0);
+    // Keep an all-time view readable rather than drawing 400 bars.
+    const maxDays = 120;
+    if ((end - start) / 864e5 > maxDays) start = new Date(end.getTime() - (maxDays - 1) * 864e5);
+  }
+  // Ranges that cross a year boundary get the year on every label.
+  const withYear = state.custom && start.getFullYear() !== end.getFullYear();
+  const lbl = (k) => withYear ? parseKey(k).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "2-digit" }) : shortDay(k);
+  const out = [];
+  // Step by calendar day (not +24h) so DST changes can't skip or repeat a day.
+  for (let d = new Date(start); d.getTime() <= end.getTime(); d.setDate(d.getDate() + 1)) {
+    const k = dayKey(d);
+    out.push({ key: k, label: lbl(k), short: lbl(k) });
+  }
+  return out;
+}
+
+function buildDaySeries(orders) {
+  const buckets = {};
+  orders.forEach((o) => { const k = dayKey(o.submitted_at); buckets[k] = (buckets[k] || 0) + 1; });
+  return dayRange(orders).map((d) => ({ ...d, value: buckets[d.key] || 0 }));
+}
+
+function buildTurnaroundSeries(orders) {
+  const buckets = {};
+  orders.forEach((o) => {
+    if (o.status !== "completed" || !o.completed_at || !o.submitted_at) return;
+    const hrs = (new Date(o.completed_at) - new Date(o.submitted_at)) / 36e5;
+    if (!isFinite(hrs) || hrs < 0) return;
+    const k = dayKey(o.completed_at);
+    (buckets[k] = buckets[k] || []).push(hrs);
+  });
+  return dayRange(orders).map((d) => {
+    const vals = buckets[d.key];
+    return { ...d, value: vals && vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null };
+  });
+}
+
+function renderTiles(orders) {
+  const open = orders.filter((o) => o.status === "pending" || o.status === "in_progress").length;
+  const completed = orders.filter((o) => o.status === "completed");
+
+  const turnarounds = completed
+    .map((o) => (o.completed_at && o.submitted_at)
+      ? (new Date(o.completed_at) - new Date(o.submitted_at)) / 36e5 : null)
+    .filter((v) => v != null && isFinite(v) && v >= 0);
+  const avgTa = turnarounds.length ? turnarounds.reduce((a, b) => a + b, 0) / turnarounds.length : null;
+  const ta = fmtDuration(avgTa);
+
+  const orderIds = new Set(orders.map((o) => o.id));
+  let pieces = 0;
+  state.items.forEach((it) => { if (orderIds.has(it.order_id)) pieces += Number(it.quantity) || 0; });
+  const avgItems = orders.length ? Math.round((pieces / orders.length) * 10) / 10 : 0;
+
+  const sevenAgo = Date.now() - 7 * 864e5;
+  const doneWeek = completed.filter((o) => o.completed_at && new Date(o.completed_at).getTime() >= sevenAgo).length;
+
+  const period = periodLabel();
+  const tiles = [
+    { label: "Orders", value: orders.length.toLocaleString(), unit: "", foot: period },
+    { label: "Open now", value: String(open), unit: "", foot: "pending or in progress" },
+    { label: "Completed", value: String(completed.length), unit: "", foot: `${doneWeek} in the last 7 days` },
+    { label: "Avg turnaround", value: ta.value, unit: ta.unit, foot: turnarounds.length ? `across ${turnarounds.length} completed` : "no completed orders yet" },
+    { label: "Avg items per basket", value: String(avgItems), unit: "", foot: `${pieces.toLocaleString()} pieces total` },
+  ];
+
+  document.getElementById("tiles").innerHTML = tiles.map((t) => `
+    <div class="tile">
+      <div class="label">${escapeHtml(t.label)}</div>
+      <div class="value">${escapeHtml(t.value)}${t.unit ? `<span class="unit">${escapeHtml(t.unit)}</span>` : ""}</div>
+      <div class="foot">${escapeHtml(t.foot)}</div>
+    </div>`).join("");
+}
+
+/* --------------------------------------------------------------- wiring */
+
+const fromInput = document.getElementById("fromDate");
+const toInput = document.getElementById("toDate");
+
+function todayKey() { return dayKey(new Date()); }
+
+function updateRangeInfo() {
+  const info = document.getElementById("rangeInfo");
+  if (!state.custom) { info.textContent = ""; return; }
+  const n = Math.round((parseKey(state.custom.to) - parseKey(state.custom.from)) / 864e5) + 1;
+  info.textContent = `${n} day${n === 1 ? "" : "s"}`;
+}
+
+function applyCustomRange(changed) {
+  let from = fromInput.value, to = toInput.value;
+  if (!from || !to) return;                 // wait until both are filled in
+  const today = todayKey();
+  if (to > today) to = today;
+  if (from > today) from = today;
+  // Picked out of order: the field you just touched wins, the other follows it.
+  if (from > to) { if (changed === "to") from = to; else to = from; }
+  fromInput.value = from; toInput.value = to;
+  state.custom = { from, to };
+  updateRangeInfo();
+  render();
+}
+
+document.getElementById("rangeCtls").addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-days]");
+  if (!btn) return;
+  const isCustom = btn.dataset.days === "custom";
+  document.querySelectorAll("#rangeCtls button[data-days]")
+    .forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
+  document.getElementById("customRange").classList.toggle("hide", !isCustom);
+  if (isCustom) {
+    // Start from what was on screen: last 30 days, or keep the previous custom pick.
+    if (!fromInput.value || !toInput.value) {
+      const end = new Date(); const start = new Date(end); start.setDate(start.getDate() - 29);
+      fromInput.value = dayKey(start); toInput.value = dayKey(end);
+    }
+    applyCustomRange();
+    return;
+  }
+  state.custom = null;
+  state.days = Number(btn.dataset.days);
+  updateRangeInfo();
+  render();
+});
+
+fromInput.max = toInput.max = todayKey();
+fromInput.addEventListener("change", () => applyCustomRange("from"));
+toInput.addEventListener("change", () => applyCustomRange("to"));
+
+document.getElementById("tableBtn").addEventListener("click", (e) => {
+  state.showTables = !state.showTables;
+  e.target.setAttribute("aria-pressed", String(state.showTables));
+  e.target.textContent = state.showTables ? "Hide tables" : "Show tables";
+  render();
+});
+
+document.getElementById("refreshBtn").addEventListener("click", load);
+
+document.getElementById("siteCtls").addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-site]");
+  if (!btn) return;
+  state.site = btn.dataset.site;
+  document.querySelectorAll("#siteCtls button[data-site]")
+    .forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
+  render();
+});
+
+// Orders made in the app demo (in another tab) show up straight away.
+window.addEventListener("storage", (e) => { if (e.key === window.CoveData.KEY) load(); });
+
+document.getElementById("themeBtn").addEventListener("click", () => {
+  const isDark = document.documentElement.getAttribute("data-theme") === "dark"
+    || (!document.documentElement.getAttribute("data-theme")
+        && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  document.documentElement.setAttribute("data-theme", isDark ? "light" : "dark");
+  document.getElementById("themeBtn").textContent = isDark ? "Dark mode" : "Light mode";
+  render();
+});
+
+load();
+</script>
+</body>
+</html>

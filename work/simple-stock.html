@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Stock case study | Just Kuz Projects</title>
+  <meta name="description" content="One stock system for the office and the stock room: order, book in, book out, count and report.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="wrap">
+      <a href="../index.html" class="brand"><span class="brand-mark" aria-hidden="true"></span>Just Kuz Projects <small>App developer</small></a>
+      <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
+        <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M2 5h16M2 10h16M2 15h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <nav class="nav" id="site-nav">
+        <a href="../index.html#work" aria-current="page">Work</a>
+        <a href="../services.html">Services</a>
+        <a href="../about.html">About</a>
+        <a href="#contact" class="btn">Get in touch</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <header class="page-head">
+      <div class="wrap">
+        <a href="../index.html#work" class="back">&larr; All work</a>
+        <h1>Simple Stock: one stock system for the office and the stock room.</h1>
+        <p class="lede">Order from suppliers, compare their prices, book deliveries in, book stock out to named workers and count what's left, from a desktop app in the office or a tablet in the stock room.</p>
+        <dl class="cs-meta">
+          <div><dt>Client</dt><dd>Facilities management</dd></div>
+          <div><dt>Platform</dt><dd>Windows desktop + Android tablet</dd></div>
+          <div><dt>My role</dt><dd>Redesign and rebuild</dd></div>
+          <div><dt>Year</dt><dd>2026 <!-- EDIT --></dd></div>
+        </dl>
+        <p class="demo-note">This is a portfolio version of a system I built for a real facilities-management client. To keep their information private, it's shown with a fictional bar, Birchwood Tavern Co., and made-up stock.</p>
+        <!-- OPTIONAL: once the demo is on GitHub or hosted online, add links here:
+        <div class="btn-row" style="margin-top:20px">
+          <a href="https://github.com/mevelyns/DepotFlow-Demo" class="btn">View the code</a>
+        </div>
+        -->
+      </div>
+    </header>
+
+    <!-- HERO SCREENS: screenshots from the desktop (Electron) app, shown at full size -->
+    <section class="cs-hero">
+      <div class="wrap desk-stack">
+        <figure class="desk">
+          <div class="shot desktop"><img src="../images/simple-stock/hero-desktop.png" alt="Simple Stock home screen with the stock overview" onerror="this.remove()"><span class="ph"><strong>Home screen</strong><code>simple-stock/hero-desktop.png</code></span></div>
+          <figcaption>The home screen: every action one click away, with live stock levels underneath.</figcaption>
+        </figure>
+        <figure class="desk">
+          <div class="shot desktop"><img src="../images/simple-stock/hero-stocktake.png" alt="Stock take screen with counted quantities" onerror="this.remove()"><span class="ph"><strong>Stock take</strong><code>simple-stock/hero-stocktake.png</code></span></div>
+          <figcaption>Stock take: enter what's on the shelf, or print a blank count sheet to walk with.</figcaption>
+        </figure>
+        <figure class="desk">
+          <div class="shot desktop"><img src="../images/simple-stock/hero-bookin.png" alt="Choosing which supplier delivered when booking stock in" onerror="this.remove()"><span class="ph"><strong>Book in: pick the supplier</strong><code>simple-stock/hero-bookin.png</code></span></div>
+          <figcaption>Booking in starts with the supplier who delivered.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:0">
+      <div class="wrap two-col">
+        <div>
+          <h2>The problem</h2>
+          <!-- EDIT: describe how it really worked before, in your own words -->
+          <p>Stock was ordered by phone and email, deliveries were checked from memory, and items left the store room without a record. Nobody could say for sure what was on the shelf, what had been ordered, or where it had gone.</p>
+        </div>
+        <div>
+          <h2>What I built</h2>
+          <p>One shared system that records every way stock moves. The office uses it as a desktop app and the stock room uses a tablet, both working on the same data. Stock levels only change through four recorded actions, so every number has an explanation behind it.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head"><h2>How stock moves through it</h2></div>
+        <ol class="steps">
+          <li><div><h3>Order from a supplier</h3><p>Check which supplier is cheapest for each item, build a basket and send a purchase-order PDF. Drafts are saved, so you can close the app and finish the order later.</p></div></li>
+          <li><div><h3>Book the delivery in</h3><p>Pick the open order and the quantities fill themselves in. You only change what came in short, extra or substituted, and the order is marked received or partly received automatically.</p></div></li>
+          <li><div><h3>Book stock out to a worker</h3><p>Staff pick their own name on the tablet, then the item and quantity. The stock level drops straight away, and the book-out is recorded against that person.</p></div></li>
+          <li><div><h3>Count and correct</h3><p>A stock take records what's actually on the shelf and logs the difference. Anything that isn't a delivery, a book-out or a count needs an adjustment with a reason.</p></div></li>
+          <li><div><h3>Report</h3><p>A variance report PDF lists every count and adjustment over any date range, as a full audit trail.</p></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head"><h2>Key features</h2></div>
+        <div class="feature-rows">
+          <div class="frow stacked">
+            <div>
+              <h3>Deliveries checked against the order</h3>
+              <p>Link a delivery to its order and Simple Stock compares what arrived with what was ordered, line by line. Short deliveries show up straight away instead of at the next stock take.</p>
+            </div>
+            <figure class="shot desktop"><img src="../images/simple-stock/feature-bookin.png" alt="Booking in a delivery against its order" onerror="this.remove()"><figcaption class="ph"><strong>Book in against an order</strong><code>simple-stock/feature-bookin.png</code></figcaption></figure>
+
+          </div>
+          <div class="frow stacked">
+            <div>
+              <h3>Every item booked out to a named worker</h3>
+              <p>Workers pick their name before they take anything, so every book-out has a person attached. The history shows who took what and when, and the overview shows who uses the most stock over the last 30 days.</p>
+            </div>
+            <figure class="shot desktop"><img src="../images/simple-stock/feature-bookout.png" alt="Workers list in the admin area" onerror="this.remove()"><figcaption class="ph"><strong>Book out to a worker</strong><code>simple-stock/feature-bookout.png</code></figcaption></figure>
+
+          </div>
+          <div class="frow stacked">
+            <div>
+              <h3>Compare what each supplier charges</h3>
+              <p>The costing screen puts each supplier's price for the same item side by side, so you can see who's cheapest before you place an order.</p>
+            </div>
+            <figure class="shot desktop"><img src="../images/simple-stock/feature-costing.png" alt="Supplier price comparison" onerror="this.remove()"><figcaption class="ph"><strong>Supplier costing</strong><code>simple-stock/feature-costing.png</code></figcaption></figure>
+
+          </div>
+          <div class="frow stacked">
+            <div>
+              <h3>Stock levels at a glance</h3>
+              <p>The home screen shows stock per category, with low items highlighted in red. It also shows the most-used items and who books out the most over the last 30 days. One button prints the full report as a PDF.</p>
+            </div>
+            <figure class="shot desktop"><img src="../images/simple-stock/feature-overview.png" alt="Stock overview dashboard" onerror="this.remove()"><figcaption class="ph"><strong>Stock overview</strong><code>simple-stock/feature-overview.png</code></figcaption></figure>
+
+          </div>
+          <div class="frow stacked">
+            <div>
+              <h3>Requests from staff in the field</h3>
+              <p>Staff send stock requests from a companion app, and the tablet or desktop gets a notification even when Simple Stock is closed. Each request can be matched to real items and booked out on the spot, or marked approved, ordered or rejected.</p>
+            </div>
+            <figure class="shot desktop"><img src="../images/simple-stock/feature-requests.png" alt="Stock requests from staff" onerror="this.remove()"><figcaption class="ph"><strong>Stock requests</strong><code>simple-stock/feature-requests.png</code></figcaption></figure>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap two-col">
+        <div>
+          <h2>Under the hood</h2>
+          <p>Built with React Native and Expo Router. The same code runs on the Android tablet and is packaged as a Windows desktop app with Electron. Supabase (PostgreSQL) is the backend.</p>
+          <p>Stock levels are changed by database triggers, not by the app doing the maths. That means two devices recording stock at the same time can't overwrite each other's numbers.</p>
+          <p>It also keeps working when the signal drops. The item list is saved on the device, and every change is queued locally and synced as soon as the connection comes back.</p>
+          <p>The portfolio demo runs on a small built-in stand-in for the database, so anyone can install it and try it with no setup.</p>
+          <ul class="stack">
+            <li>React Native</li><li>Expo Router</li><li>TypeScript</li><li>Supabase</li><li>PostgreSQL triggers</li><li>Electron</li><li>PDF export</li><li>Offline sync</li>
+          </ul>
+        </div>
+        <div>
+          <h2>Results</h2>
+          <!-- EDIT: replace with real numbers or quotes from the client -->
+          <div class="results" style="grid-template-columns:1fr">
+            <div><strong><span class="todo">[e.g. stock takes in half the time]</span></strong><p>compared with counting on paper</p></div>
+            <div><strong><span class="todo">[e.g. every delivery checked]</span></strong><p>against its order before it goes on the shelf</p></div>
+            <div><strong><span class="todo">[quote]</span></strong><p>A line from the person who runs the stock room</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap">
+      <div class="next-project">
+        <span class="muted">Next case study</span>
+        <a href="cove-laundry.html">Cove Laundry</a>
+      </div>
+    </div>
+  </main>
+
+  <section class="contact-band" id="contact">
+    <div class="wrap">
+      <div>
+        <h2>Still keeping stock in a notebook?</h2>
+        <p>I can build a stock system shaped around how your business orders, receives and uses stock.</p>
+      </div>
+      <div class="btn-row">
+        <a href="mailto:justkuzprojects@gmail.com" class="btn light">Email me</a>
+        <a href="https://wa.me/27000000000" class="btn outline-light">WhatsApp me</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>&copy; <span id="year">2026</span> Just Kuz Projects</span>
+      <nav aria-label="Elsewhere"><a href="https://github.com/mevelyns">GitHub</a><a href="https://meleengames.itch.io/">itch.io</a></nav>
+    </div>
+  </footer>
+  <script src="../js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,1487 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Cove Laundry</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Interactive demo of a hotel laundry app: guests send a basket from a QR code in their room, staff collect, process and complete it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: showcase copy on the left, a live phone on the right (stacks on phones).
+   The phone screen keeps the app's own light palette in both themes, the way the
+   real app ships light-only; everything around it follows the viewer's theme. */
+:root {
+  --bg: #edf1f6;
+  --panel: #ffffff;
+  --ink: #14223a;
+  --ink-2: #44546c;
+  --muted: #687a93;
+  --line: rgba(20, 34, 58, 0.12);
+  --accent: #1f4e8c;
+  --accent-ink: #ffffff;
+  --brass: #b9852f;
+  --soft: #e3eaf4;
+  --bezel: #0c1422;
+  --bezel-edge: #2a3546;
+  --paper: #fbfcfe;
+  --paper-ink: #0f1b2e;
+  --paper-muted: #5a6b82;
+  --paper-line: #d8e0ec;
+  --done: #2f9e44;
+
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Phone screen: the app's own palette (light only, like the real app). */
+  --s-bg: #f2f5f9;
+  --s-surface: #ffffff;
+  --s-border: #d4dce8;
+  --s-accent: #1f4e8c;
+  --s-accent-l: #2f6fc4;
+  --s-accent-soft: #e6edf8;
+  --s-grey: #8a9bb5;
+  --s-text: #1a2b45;
+  --s-muted: #6b7e99;
+  --s-success: #2f9e44;
+  --s-success-l: #e4f6e8;
+  --s-warning: #b86f12;
+  --s-warning-l: #fbeedd;
+  --s-danger: #c0392b;
+  --s-danger-l: #fbe7e4;
+  --s-white: #ffffff;
+  --s-overlay: rgba(26, 43, 69, 0.55);
+  --s-push: rgba(250, 251, 253, 0.97);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c121c;
+    --panel: #131c29;
+    --ink: #edf2f9;
+    --ink-2: #bcc8d8;
+    --muted: #8b9bb1;
+    --line: rgba(255, 255, 255, 0.1);
+    --accent: #78a6e6;
+    --accent-ink: #0c1422;
+    --brass: #d8ab5c;
+    --soft: #1b2636;
+    --bezel: #04070c;
+    --bezel-edge: #2c3748;
+    --done: #4cc265;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c121c;
+  --panel: #131c29;
+  --ink: #edf2f9;
+  --ink-2: #bcc8d8;
+  --muted: #8b9bb1;
+  --line: rgba(255, 255, 255, 0.1);
+  --accent: #78a6e6;
+  --accent-ink: #0c1422;
+  --brass: #d8ab5c;
+  --soft: #1b2636;
+  --bezel: #04070c;
+  --bezel-edge: #2c3748;
+  --done: #4cc265;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 15px/1.55 var(--f-body);
+  -webkit-font-smoothing: antialiased;
+}
+button, input, select { font: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.page {
+  max-width: 1220px;
+  margin: 0 auto;
+  padding-block: 40px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 414px;
+  grid-template-areas: "intro device" "details device";
+  column-gap: 64px;
+  row-gap: 32px;
+  align-items: start;
+}
+.intro { grid-area: intro; min-width: 0; }
+.details { grid-area: details; min-width: 0; display: grid; gap: 20px; }
+.device-col { grid-area: device; position: sticky; top: 24px; }
+
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted);
+}
+.eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--brass); }
+.brandline { display: flex; align-items: center; gap: 10px; margin-top: 22px; color: var(--ink-2); font-weight: 600; }
+.brandline svg { width: 34px; height: 34px; flex: none; }
+h1 {
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: clamp(42px, 6vw, 68px);
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+  margin: 10px 0 16px;
+  text-wrap: balance;
+}
+.lede { font-size: 17px; color: var(--ink-2); max-width: 60ch; margin: 0 0 26px; }
+
+.modes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 560px; }
+.mode {
+  display: flex; gap: 12px; align-items: flex-start; text-align: left;
+  padding: 14px 16px; border-radius: 14px; cursor: pointer;
+  background: var(--panel); color: var(--ink); border: 1.5px solid var(--line);
+  transition: border-color .15s, background .15s;
+}
+.mode:hover { border-color: var(--accent); }
+.mode[aria-pressed="true"] { border-color: var(--accent); background: var(--soft); }
+.mode svg { width: 22px; height: 22px; flex: none; margin-top: 2px; color: var(--accent); }
+.mode b { display: block; font-weight: 700; }
+.mode span { display: block; font-size: 13px; color: var(--muted); line-height: 1.35; margin-top: 2px; }
+.modehint { color: var(--muted); font-size: 13px; margin: 12px 0 0; max-width: 60ch; }
+
+.panel {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 18px;
+  padding: 22px 22px 20px;
+}
+.panel h2 {
+  font-family: var(--f-display); font-weight: 700; font-size: 21px; letter-spacing: -0.01em;
+  margin: 0 0 4px;
+}
+.panel .hint { color: var(--muted); font-size: 13.5px; margin: 0 0 14px; }
+
+.steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 2px; }
+.step {
+  display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 12px; align-items: center;
+  padding: 9px 4px; border-top: 1px solid var(--line);
+}
+.step:first-child { border-top: 0; }
+.step .num {
+  width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 12.5px; font-weight: 700; border: 1.5px solid var(--line); color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.step.done .num { background: var(--done); border-color: var(--done); color: #fff; }
+.step .txt b { display: block; font-weight: 600; font-size: 14.5px; }
+.step .txt span { display: block; font-size: 12.5px; color: var(--muted); }
+.step.done .txt b { color: var(--ink-2); }
+.linkbtn {
+  border: 0; background: none; color: var(--accent); font-weight: 600; font-size: 13px; cursor: pointer;
+  padding: 6px 8px; border-radius: 8px; white-space: nowrap;
+}
+.linkbtn:hover { background: var(--soft); }
+.also { margin-top: 10px; padding-top: 12px; border-top: 1px dashed var(--line); }
+
+/* In-room card: a printed tent card, deliberately paper-white in both themes. */
+.roomcard {
+  background: var(--paper); color: var(--paper-ink);
+  border: 1px solid var(--paper-line); border-radius: 18px;
+  padding: 20px; display: grid; grid-template-columns: 148px minmax(0, 1fr); gap: 20px; align-items: center;
+  box-shadow: 0 1px 0 rgba(15, 27, 46, .04), 0 18px 40px -24px rgba(15, 27, 46, .35);
+}
+.qrbox { background: #fff; border: 1px solid var(--paper-line); border-radius: 12px; padding: 8px; }
+.qrbox svg { display: block; width: 100%; height: auto; }
+.roomcard .kicker { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; color: #a2742a; }
+.roomcard h3 { font-family: var(--f-display); font-size: 22px; line-height: 1.1; margin: 4px 0 6px; letter-spacing: -0.01em; }
+.roomcard p { margin: 0 0 12px; font-size: 13.5px; color: var(--paper-muted); }
+.roomcard .pickrow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.roomcard select {
+  border: 1px solid var(--paper-line); background: #fff; color: var(--paper-ink);
+  border-radius: 8px; padding: 6px 8px; font-size: 13.5px; color-scheme: light;
+}
+.scanbtn {
+  border: 0; border-radius: 9px; padding: 8px 14px; cursor: pointer; font-weight: 600; font-size: 13.5px;
+  background: #1f4e8c; color: #fff;
+}
+.scanbtn:hover { background: #2a5fa6; }
+.roomcard .fine { font-size: 11.5px; color: var(--paper-muted); margin: 10px 0 0; }
+
+.stack { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.stack li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; font-size: 14px; color: var(--ink-2); }
+.stack li svg { width: 18px; height: 18px; color: var(--accent); margin-top: 2px; }
+.stack li b { color: var(--ink); font-weight: 600; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.cta {
+  display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
+  background: var(--accent); color: var(--accent-ink); font-weight: 600;
+  padding: 11px 16px; border-radius: 12px; border: 0; cursor: pointer;
+}
+.cta svg { width: 16px; height: 16px; }
+.ghost {
+  display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+  background: transparent; color: var(--ink-2); border: 1px solid var(--line);
+  padding: 10px 14px; border-radius: 12px; font-weight: 600;
+}
+.ghost:hover { color: var(--ink); border-color: var(--muted); }
+.ghost.warn { color: #c0392b; border-color: #c0392b; }
+.small { color: var(--muted); font-size: 12.5px; margin: 0; }
+
+/* ---------------------------------------------------------------- phone */
+.phone {
+  width: 414px; max-width: 100%;
+  height: clamp(640px, calc(100vh - 48px), 840px);
+  padding: 11px; border-radius: 54px;
+  background: var(--bezel);
+  box-shadow: inset 0 0 0 1.5px var(--bezel-edge), 0 30px 60px -30px rgba(12, 20, 34, .55);
+}
+.screen {
+  position: relative; height: 100%; overflow: hidden; border-radius: 44px;
+  background: var(--s-bg); color: var(--s-text);
+  display: flex; flex-direction: column;
+  font-family: var(--f-body); font-size: 15px; line-height: 1.45;
+  color-scheme: light;
+}
+#app { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.sbar {
+  flex: none; height: 46px; padding: 14px 30px 0; display: flex; align-items: center; justify-content: space-between;
+  font-weight: 600; font-size: 14.5px; color: var(--s-text); background: var(--s-surface);
+  font-variant-numeric: tabular-nums;
+}
+.sbar.staff { background: var(--s-bg); }
+.sbar .icons { display: flex; align-items: center; gap: 6px; }
+.sbar .icons svg { height: 12px; width: auto; }
+.sbar .nosig { font-size: 11.5px; font-weight: 600; color: var(--s-warning); }
+.urlbar {
+  flex: none; margin: 4px 14px 8px; padding: 7px 12px; border-radius: 12px;
+  background: var(--s-bg); color: var(--s-muted); font-size: 12.5px;
+  display: flex; align-items: center; gap: 6px; justify-content: center;
+}
+.urlbar svg { width: 12px; height: 12px; }
+.urlwrap { background: var(--s-surface); border-bottom: 1px solid var(--s-border); flex: none; }
+.view { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+.pad { padding: 20px 22px 32px; }
+
+.tabbar {
+  flex: none; display: grid; background: var(--s-surface); border-top: 1px solid var(--s-border);
+  padding: 6px 6px 18px;
+}
+.tab {
+  border: 0; background: none; cursor: pointer; display: grid; justify-items: center; gap: 2px;
+  color: var(--s-grey); font-size: 11px; font-weight: 600; padding: 6px 2px; border-radius: 10px;
+}
+.tab svg { width: 23px; height: 23px; }
+.tab[aria-current="page"] { color: var(--s-accent); }
+
+.s-title { font-size: 27px; font-weight: 700; letter-spacing: 0.1px; margin: 0; color: var(--s-text); line-height: 1.15; }
+.s-sub { color: var(--s-muted); margin: 4px 0 18px; font-size: 14.5px; }
+.back {
+  width: 40px; height: 40px; margin: -6px 0 6px -10px; border: 0; background: none; cursor: pointer;
+  display: grid; place-items: center; color: var(--s-text); border-radius: 10px;
+}
+.back svg { width: 22px; height: 22px; }
+
+.card {
+  background: var(--s-surface); border: 1px solid var(--s-border); border-radius: 16px; padding: 16px;
+  box-shadow: 0 4px 12px rgba(26, 43, 69, .05);
+}
+.card + .card { margin-top: 14px; }
+.card h3 { margin: 0; font-size: 17px; font-weight: 600; }
+.card .h-hint { color: var(--s-muted); font-size: 13px; font-weight: 500; margin: 4px 0 12px; }
+.card-row { display: flex; align-items: center; gap: 10px; justify-content: space-between; }
+.tap { cursor: pointer; transition: background .12s; display: block; width: 100%; text-align: left; font: inherit; color: inherit; }
+.tap:hover { background: #f8fafd; }
+.tap.card-row { display: flex; }
+.list { display: grid; gap: 12px; }
+
+.badge {
+  display: inline-flex; align-items: center; gap: 6px; flex: none;
+  padding: 4px 11px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap;
+}
+.badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.b-pending { color: var(--s-warning); background: var(--s-warning-l); }
+.b-in_progress { color: var(--s-accent-l); background: var(--s-accent-soft); }
+.b-completed { color: var(--s-success); background: var(--s-success-l); }
+
+.meta { color: var(--s-muted); font-size: 13px; }
+.who { font-weight: 600; font-size: 15px; }
+.chev { width: 18px; height: 18px; color: var(--s-grey); flex: none; }
+.hint-line { display: flex; align-items: center; gap: 6px; margin-top: 10px; color: var(--s-warning); font-size: 12.5px; font-weight: 600; }
+.hint-line svg { width: 15px; height: 15px; }
+.unsynced {
+  display: inline-flex; align-items: center; gap: 6px; margin-top: 8px;
+  background: var(--s-warning-l); color: var(--s-warning); border-radius: 8px; padding: 4px 8px;
+  font-size: 12px; font-weight: 600;
+}
+.unsynced svg { width: 13px; height: 13px; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 48px; padding: 0 16px; border-radius: 12px; cursor: pointer; width: 100%;
+  font-weight: 600; font-size: 15px; border: 1.5px solid transparent; text-decoration: none;
+}
+.btn svg { width: 18px; height: 18px; }
+.btn.lg { height: 54px; font-size: 16px; }
+.btn.primary { background: var(--s-accent); color: var(--s-white); }
+.btn.secondary { background: var(--s-accent-l); color: var(--s-white); }
+.btn.outline { background: var(--s-surface); color: var(--s-accent); border-color: var(--s-accent); }
+.btn:disabled, .btn[aria-disabled="true"] { opacity: .42; cursor: not-allowed; }
+.btn-row { display: flex; gap: 10px; }
+.mt { margin-top: 14px; }
+.mt-l { margin-top: 20px; }
+
+.field { display: grid; gap: 6px; }
+.field + .field { margin-top: 14px; }
+.field > span { font-size: 13px; font-weight: 500; color: var(--s-muted); }
+.input {
+  width: 100%; height: 46px; padding: 0 12px; border-radius: 12px; font-size: 15px;
+  border: 1px solid var(--s-border); background: var(--s-surface); color: var(--s-text);
+  appearance: none;
+}
+select.input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238A9BB5' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center; background-size: 18px; padding-right: 38px;
+}
+.input::placeholder { color: var(--s-grey); }
+.input:focus { outline: 2px solid var(--s-accent-l); outline-offset: 0; border-color: transparent; }
+
+.photo { position: relative; border-radius: 12px; overflow: hidden; background: var(--s-bg); height: 180px; }
+.photo svg, .photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.chip-x {
+  position: absolute; top: 8px; right: 8px; display: inline-flex; align-items: center; gap: 4px;
+  background: var(--s-overlay); color: var(--s-white); border: 0; border-radius: 999px; padding: 5px 10px;
+  font-size: 12px; font-weight: 600; cursor: pointer;
+}
+.chip-x svg { width: 13px; height: 13px; }
+.photo-tag {
+  position: absolute; left: 8px; bottom: 8px; background: var(--s-overlay); color: var(--s-white);
+  font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px;
+}
+
+.items { display: grid; gap: 2px; margin-bottom: 12px; }
+.item {
+  display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--s-border);
+  font: inherit; color: inherit; background: none; border-left: 0; border-right: 0; border-top: 0; text-align: left; width: 100%;
+}
+button.item { cursor: pointer; }
+button.item:disabled { cursor: default; }
+.qty {
+  min-width: 26px; height: 26px; border-radius: 13px; background: var(--s-bg); color: var(--s-accent);
+  display: inline-grid; place-items: center; padding: 0 7px; font-size: 12.5px; font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.item .nm { flex: 1; }
+.item .nm.checked { color: var(--s-muted); text-decoration: line-through; }
+.item svg { width: 20px; height: 20px; flex: none; }
+.icon-btn { border: 0; background: none; cursor: pointer; padding: 4px; border-radius: 8px; display: grid; place-items: center; }
+.icon-btn svg { width: 18px; height: 18px; }
+.c-danger { color: var(--s-danger); }
+.c-success { color: var(--s-success); }
+.c-grey { color: var(--s-grey); }
+
+.addrow { display: flex; gap: 8px; }
+.addrow .input { flex: 1; min-width: 0; }
+.stepper {
+  display: flex; align-items: center; height: 46px; padding: 0 4px; border-radius: 12px;
+  background: var(--s-bg); border: 1px solid var(--s-border);
+}
+.stepper button { width: 30px; height: 30px; border: 0; background: none; color: var(--s-accent); cursor: pointer; display: grid; place-items: center; border-radius: 8px; }
+.stepper button svg { width: 16px; height: 16px; }
+.stepper b { min-width: 22px; text-align: center; font-variant-numeric: tabular-nums; }
+.quick { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.quick button {
+  border: 1px dashed var(--s-border); background: var(--s-surface); color: var(--s-muted);
+  border-radius: 999px; padding: 4px 10px; font-size: 12.5px; font-weight: 500; cursor: pointer;
+}
+.quick button:hover { color: var(--s-accent); border-color: var(--s-accent); }
+
+.banner {
+  display: flex; gap: 12px; align-items: center; padding: 14px; border-radius: 14px; margin-bottom: 14px;
+  background: var(--s-accent-soft); border: 1px solid #c9d7ee; cursor: pointer; width: 100%; text-align: left;
+  color: var(--s-text); font: inherit;
+}
+.banner .ic { width: 36px; height: 36px; border-radius: 50%; background: var(--s-surface); display: grid; place-items: center; color: var(--s-accent); flex: none; }
+.banner .ic svg { width: 18px; height: 18px; }
+.banner b { display: block; font-size: 14.5px; }
+.banner span { display: block; font-size: 12.5px; color: var(--s-muted); }
+.banner.ok { background: var(--s-success-l); border-color: #c4e7cc; cursor: default; }
+.banner.ok .ic { color: var(--s-success); }
+
+.note {
+  display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 12px;
+  background: var(--s-accent-soft); color: var(--s-text); font-size: 13px; margin-bottom: 14px;
+}
+.note svg { width: 18px; height: 18px; color: var(--s-accent); flex: none; margin-top: 1px; }
+.error {
+  display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 12px;
+  background: var(--s-danger-l); color: #8f2a20; font-size: 13.5px; margin-bottom: 14px;
+}
+.error svg { width: 18px; height: 18px; flex: none; margin-top: 1px; }
+
+.timeline { display: grid; }
+.tl { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 12px; }
+.tl .mk { display: grid; justify-items: center; }
+.tl .dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--s-border); background: var(--s-surface); display: grid; place-items: center; }
+.tl .dot svg { width: 12px; height: 12px; color: var(--s-white); }
+.tl.done .dot { background: var(--s-success); border-color: var(--s-success); }
+.tl .ln { width: 2px; flex: 1; min-height: 22px; background: var(--s-border); }
+.tl.done .ln { background: var(--s-success); }
+.tl .tx { padding-bottom: 14px; }
+.tl .tx b { display: block; font-weight: 600; color: var(--s-muted); }
+.tl.done .tx b { color: var(--s-text); }
+.tl .tx span { font-size: 12.5px; color: var(--s-muted); }
+
+.stages { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.stage {
+  display: grid; justify-items: center; gap: 4px; padding: 12px 6px; border-radius: 12px; cursor: pointer;
+  border: 1.5px solid var(--s-border); background: var(--s-surface); color: var(--s-muted); font-weight: 600; font-size: 13px;
+}
+.stage svg { width: 20px; height: 20px; }
+.stage.on { border-color: var(--s-success); background: var(--s-success-l); color: var(--s-success); }
+.stage:disabled { opacity: .55; cursor: default; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chipst { display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; padding: 4px 10px; font-size: 12.5px; font-weight: 600; background: var(--s-bg); color: var(--s-muted); }
+.chipst.on { background: var(--s-success-l); color: var(--s-success); }
+.chipst svg { width: 14px; height: 14px; }
+
+.profile { display: grid; justify-items: center; text-align: center; padding: 24px 16px; }
+.avatar { width: 64px; height: 64px; border-radius: 50%; background: var(--s-accent); color: var(--s-white); display: grid; place-items: center; margin-bottom: 10px; }
+.avatar svg { width: 28px; height: 28px; }
+.profile .nm { font-size: 19px; font-weight: 700; }
+.roletag { margin-top: 10px; background: var(--s-accent-soft); color: var(--s-accent); padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.statrow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+.stat { text-align: center; background: var(--s-bg); border-radius: 12px; padding: 10px 4px; }
+.stat b { display: block; font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.stat span { font-size: 12px; color: var(--s-muted); font-weight: 500; }
+.switch {
+  width: 46px; height: 28px; border-radius: 999px; border: 0; cursor: pointer; position: relative; flex: none;
+  background: var(--s-border); transition: background .15s;
+}
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: var(--s-white); box-shadow: 0 1px 3px rgba(0,0,0,.2); transition: transform .15s; }
+.switch[aria-checked="true"] { background: var(--s-success); }
+.switch[aria-checked="true"]::after { transform: translateX(18px); }
+
+.empty { text-align: center; padding: 48px 18px; color: var(--s-muted); }
+.empty svg { width: 46px; height: 46px; color: var(--s-grey); }
+.empty b { display: block; color: var(--s-text); font-size: 16px; margin: 8px 0 4px; }
+.empty span { font-size: 13.5px; }
+
+.hotelmark { display: flex; align-items: center; gap: 10px; margin-bottom: 26px; }
+.hotelmark svg { width: 40px; height: 40px; }
+.hotelmark b { display: block; font-size: 15px; }
+.hotelmark span { display: block; font-size: 12px; color: var(--s-muted); letter-spacing: .06em; text-transform: uppercase; font-weight: 600; }
+.namechips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.namechips button { border: 1px solid var(--s-border); background: var(--s-surface); color: var(--s-text); border-radius: 999px; padding: 5px 11px; font-size: 13px; cursor: pointer; }
+.namechips button:hover { border-color: var(--s-accent); color: var(--s-accent); }
+.offline-note { display: flex; gap: 10px; padding: 12px 14px; border-radius: 12px; background: var(--s-surface); border: 1px solid var(--s-border); font-size: 13px; color: var(--s-muted); margin-bottom: 14px; }
+.offline-note svg { width: 18px; height: 18px; color: var(--s-accent); flex: none; margin-top: 1px; }
+.listnote { text-align: center; color: var(--s-muted); font-size: 12.5px; padding: 6px 0 0; }
+
+/* toasts, push notifications and sheets live above the re-rendered app */
+#toasts { position: absolute; left: 12px; right: 12px; top: 50px; display: grid; gap: 8px; z-index: 30; pointer-events: none; }
+.toast {
+  pointer-events: auto; background: var(--s-text); color: var(--s-white); border-radius: 14px; padding: 12px 14px;
+  font-size: 13.5px; box-shadow: 0 10px 30px rgba(10, 20, 40, .25); animation: drop .25s ease-out;
+}
+.toast b { display: block; font-size: 14px; }
+.toast.push {
+  background: var(--s-push); color: var(--s-text); border: 1px solid var(--s-border); cursor: pointer;
+  display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 10px; align-items: start;
+}
+.toast.push .appic { width: 36px; height: 36px; border-radius: 9px; background: var(--s-accent); display: grid; place-items: center; color: #fff; }
+.toast.push .appic svg { width: 20px; height: 20px; }
+.toast.push small { display: block; color: var(--s-muted); font-size: 11.5px; }
+.toast.push span { display: block; color: var(--s-muted); }
+@keyframes drop { from { transform: translateY(-14px); opacity: 0; } to { transform: none; opacity: 1; } }
+#sheet[hidden] { display: none; }
+#sheet { position: absolute; inset: 0; background: var(--s-overlay); z-index: 40; display: grid; align-items: end; }
+.sheetbox { background: var(--s-surface); border-radius: 22px 22px 0 0; padding: 22px 22px 30px; animation: rise .22s ease-out; }
+.sheetbox h3 { margin: 0 0 6px; font-size: 18px; }
+.sheetbox p { margin: 0 0 18px; color: var(--s-muted); font-size: 14px; }
+@keyframes rise { from { transform: translateY(30px); opacity: .4; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .toast, .sheetbox { animation: none; } }
+
+@media (max-width: 1040px) {
+  .page { grid-template-columns: minmax(0, 1fr); grid-template-areas: "intro" "device" "details"; padding-block: 28px 48px; }
+  .device-col { position: static; justify-self: center; width: 100%; max-width: 414px; }
+  .phone { height: 780px; }
+}
+@media (max-width: 480px) {
+  .phone { padding: 0; border-radius: 22px; height: 740px; box-shadow: 0 0 0 1px var(--line); }
+  .screen { border-radius: 22px; }
+  .sbar { padding: 6px 18px 0; height: 34px; }
+  .modes { grid-template-columns: 1fr; }
+  .roomcard { grid-template-columns: 1fr; justify-items: start; }
+  .roomcard .qrbox { width: 150px; }
+  .panel { padding: 18px 16px; }
+}
+</style>
+
+<div class="page">
+  <header class="intro">
+    <div class="eyebrow"><span class="dot"></span>Portfolio demo · fictional hotel, made-up data</div>
+    <div class="brandline">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="11" fill="#1f4e8c"/><path d="M9 25c3.2-3 6.4-3 9.6 0s6.4 3 9.6 0" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M9 19c3.2-3 6.4-3 9.6 0s6.4 3 9.6 0" fill="none" stroke="#e2b261" stroke-width="2.4" stroke-linecap="round"/><circle cx="29" cy="11" r="3" fill="#e2b261"/></svg>
+      Cobalt Cove Hotel
+    </div>
+    <h1>Cove Laundry</h1>
+    <p class="lede">Guests scan a code in their room, photograph their basket and list every item. Staff collect it, tick each piece off, wash, dry and fold, then close the job with a photo. The guest gets a notification the moment it's done.</p>
+    <div class="modes" id="modes">
+      <button class="mode" type="button" data-mode="guest" aria-pressed="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+        <div><b>Guest view</b><span>Web app, opened from the room QR code</span></div>
+      </button>
+      <button class="mode" type="button" data-mode="staff" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3l-5 3 2 4 2-1v12h10V9l2 1 2-4-5-3a4 4 0 0 1-8 0z"/></svg>
+        <div><b>Staff view</b><span>Android app for the laundry team</span></div>
+      </button>
+    </div>
+    <p class="modehint" id="modeHint">Both views share one set of orders, the same way two phones share one database in the real app.</p>
+  </header>
+
+  <div class="device-col">
+    <div class="phone">
+      <div class="screen" id="screen">
+        <div id="app"></div>
+        <div id="toasts" aria-live="polite"></div>
+        <div id="sheet" hidden></div>
+      </div>
+    </div>
+  </div>
+
+  <aside class="details">
+    <section class="panel" aria-labelledby="tourTitle">
+      <h2 id="tourTitle">Try the full loop</h2>
+      <p class="hint">Each step ticks off as you do it. Steps jump you to the right screen.</p>
+      <ol class="steps" id="steps"></ol>
+    </section>
+
+    <section class="roomcard" aria-label="In-room QR card">
+      <div class="qrbox" id="qr"></div>
+      <div>
+        <div class="kicker">Laundry service</div>
+        <h3>Send us your basket</h3>
+        <p>Scan with your phone camera. We collect from your door and bring it back washed, dried and folded.</p>
+        <div class="pickrow">
+          <select id="qrRoom" aria-label="Room on the card"></select>
+          <select id="qrSite" aria-label="Property on the card"></select>
+          <button class="scanbtn" type="button" id="scanBtn">Simulate a scan</button>
+        </div>
+        <p class="fine">Sample code for this demo. It isn't linked to anything.</p>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="stackTitle">
+      <h2 id="stackTitle">How the real app works</h2>
+      <p class="hint">Built for a working accommodation operator. This page recreates it in the browser with a fictional hotel.</p>
+      <ul class="stack">
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/></svg><div><b>One codebase, two apps.</b> React Native and Expo Router build the staff Android app and the guest web app from the same screens.</div></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></svg><div><b>Rules in the database.</b> Supabase enforces one open basket per room, five per room a day, fifty per property a day, and valid room numbers only.</div></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 1 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><div><b>Push when it's ready.</b> An edge function sends a web push through Firebase as soon as staff mark a basket complete.</div></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18h10a4 4 0 0 0 .5-8A6 6 0 0 0 6.2 8.8 4.6 4.6 0 0 0 7 18z"/><path d="M3 3l18 18"/></svg><div><b>Works with no signal.</b> Staff can log and finish a basket fully offline; it uploads by itself once the phone reconnects.</div></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><div><b>A dashboard for managers.</b> Orders per day, turnaround, status mix, staff output and busiest rooms.</div></li>
+      </ul>
+    </section>
+
+    <div class="actions">
+      <a class="cta" href="dashboard.html" target="_blank" rel="noopener">Open the laundry dashboard
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></a>
+      <button class="ghost" type="button" id="resetBtn">Reset demo</button>
+    </div>
+    <p class="small">Cobalt Cove Hotel, its guests and its staff are invented. Orders you make are kept in this browser only and feed the dashboard.</p>
+  </aside>
+</div>
+
+<script src="demo-data.js"></script>
+<script>
+(function () {
+  "use strict";
+  var D = window.CoveData;
+  var S = D.load();
+
+  /* ------------------------------------------------------------ icons */
+  var P = {
+    camera: '<path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/>',
+    list: '<path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/>',
+    user: '<circle cx="12" cy="12" r="9.5"/><circle cx="12" cy="10" r="3.2"/><path d="M6.2 18.6c1.3-2.3 3.4-3.4 5.8-3.4s4.5 1.1 5.8 3.4"/>',
+    person: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>',
+    tray: '<path d="M3 13l2.5-7h13L21 13v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M3 13h5l1 2h6l1-2h5"/>',
+    plusCircle: '<circle cx="12" cy="12" r="9.5"/><path d="M12 8v8M8 12h8"/>',
+    checkDone: '<path d="M2 13l4 4L16 7"/><path d="M12 15l2 2L22 7"/>',
+    chevR: '<path d="M9 6l6 6-6 6"/>',
+    chevL: '<path d="M15 6l-6 6 6 6"/>',
+    trash: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
+    water: '<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/>',
+    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/>',
+    fold: '<path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/>',
+    basket: '<path d="M3 10h18l-2 9.5a1 1 0 0 1-1 .5H6a1 1 0 0 1-1-.5z"/><path d="M8 10l4-6 4 6M9 14v3M12 14v3M15 14v3"/>',
+    bell: '<path d="M6 16V11a6 6 0 1 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/>',
+    bellOff: '<path d="M6 16V11a6 6 0 0 1 9.4-4.9M18 11v5l2 2H8"/><path d="M10 20a2 2 0 0 0 4 0M3 3l18 18"/>',
+    phone: '<rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/>',
+    cloudOff: '<path d="M7 18h10a4 4 0 0 0 .5-8A6 6 0 0 0 6.2 8.8 4.6 4.6 0 0 0 7 18z"/><path d="M3 3l18 18"/>',
+    image: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/>',
+    close: '<path d="M6 6l12 12M18 6L6 18"/>',
+    swap: '<path d="M4 8h15l-3-3M20 16H5l3 3"/>',
+    check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    minus: '<path d="M5 12h14"/>',
+    sparkles: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 16l.7 1.8 1.8.7-1.8.7L19 21l-.7-1.8-1.8-.7 1.8-.7z"/>',
+    shirt: '<path d="M8 3l-5 3 2 4 2-1v12h10V9l2 1 2-4-5-3a4 4 0 0 1-8 0z"/>',
+    pin: '<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+    qr: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 17h4v4h-4"/>',
+    lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+    alert: '<circle cx="12" cy="12" r="9.5"/><path d="M12 7.5v5.5M12 16.5h.01"/>',
+    upload: '<path d="M12 16V4M7 9l5-5 5 5M4 20h16"/>',
+  };
+  function ic(name, cls) {
+    return '<svg class="' + (cls || "") + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + P[name] + "</svg>";
+  }
+  function checkCircle(cls) {
+    return '<svg class="' + (cls || "") + '" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  }
+  function ring(cls) {
+    return '<svg class="' + (cls || "") + '" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>';
+  }
+  function boxChecked(cls) {
+    return '<svg class="' + (cls || "") + '" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4" fill="currentColor"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  }
+  function boxEmpty(cls) {
+    return '<svg class="' + (cls || "") + '" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.9" y="3.9" width="16.2" height="16.2" rx="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>';
+  }
+  var LOGO = '<svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="11" fill="#1f4e8c"/><path d="M9 25c3.2-3 6.4-3 9.6 0s6.4 3 9.6 0" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M9 19c3.2-3 6.4-3 9.6 0s6.4 3 9.6 0" fill="none" stroke="#e2b261" stroke-width="2.4" stroke-linecap="round"/><circle cx="29" cy="11" r="3" fill="#e2b261"/></svg>';
+
+  /* ---------------------------------------------------------- helpers */
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function rand(seed) {
+    var a = seed | 0;
+    return function () {
+      a |= 0; a = (a + 0x6d2b79f5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function hash(str) {
+    var h = 2166136261;
+    for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return h >>> 0;
+  }
+  function fmtRel(iso) {
+    var m = (Date.now() - new Date(iso).getTime()) / 6e4;
+    if (m < 1) return "just now";
+    if (m < 60) return Math.round(m) + " min ago";
+    var h = m / 60;
+    if (h < 24) return Math.round(h) + " h ago";
+    var d = Math.floor(h / 24);
+    if (d === 1) return "yesterday";
+    if (d < 7) return d + " days ago";
+    return new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "short" });
+  }
+  function fmtDT(iso) {
+    var d = new Date(iso);
+    return d.toLocaleDateString(undefined, { day: "numeric", month: "short" }) + ", " +
+      d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
+  }
+  function total(o) { return o.items.reduce(function (s, i) { return s + i.quantity; }, 0); }
+  function plural(n, w) { return n + " " + w + (n === 1 ? "" : "s"); }
+  function shortId(o) { return o.id.slice(-6).toUpperCase(); }
+  function find(id) { return S.orders.filter(function (o) { return o.id === id; })[0]; }
+  function isToday(iso) { return D.dayKey(iso) === D.dayKey(new Date()); }
+  function persist() { D.save(S); }
+
+  /* ---------------------------------------------------- fake photos */
+  var CLOTH = ["#3e6fb0", "#d9534f", "#f2c14e", "#5ba37a", "#e9edf2", "#2d3142", "#9b6fb5", "#e88d67", "#78b7d0", "#c9cfd8"];
+  function basketSVG(seed) {
+    var r = rand(seed);
+    var s = '<svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Photo of a laundry basket">';
+    s += '<rect width="320" height="180" fill="#e7ecf2"/><rect y="118" width="320" height="62" fill="#cfd8e3"/>';
+    s += '<path d="M0 118h320" stroke="#bfcad8" stroke-width="2"/>';
+    s += '<ellipse cx="160" cy="166" rx="104" ry="9" fill="#9fb0c4" opacity=".55"/>';
+    var n = 7 + Math.floor(r() * 4);
+    for (var i = 0; i < n; i++) {
+      var x = 78 + r() * 164, y = 50 + r() * 26, rx = 22 + r() * 22, ry = 12 + r() * 10;
+      var c = CLOTH[Math.floor(r() * CLOTH.length)];
+      s += '<ellipse cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" rx="' + rx.toFixed(1) + '" ry="' + ry.toFixed(1) + '" fill="' + c + '" transform="rotate(' + ((r() - 0.5) * 40).toFixed(1) + " " + x.toFixed(1) + " " + y.toFixed(1) + ')"/>';
+    }
+    // a sleeve hanging over the rim
+    var sc = CLOTH[Math.floor(r() * 4)];
+    s += '<path d="M' + (200 + r() * 30).toFixed(0) + ' 70 q 18 10 14 40" stroke="' + sc + '" stroke-width="13" fill="none" stroke-linecap="round"/>';
+    s += '<path d="M58 76h204l-22 86H80z" fill="#b98a55"/>';
+    for (var k = 0; k < 5; k++) { var yy = 92 + k * 15; s += '<path d="M' + (62 + k * 4.5) + " " + yy + "H" + (258 - k * 4.5) + '" stroke="#9c7142" stroke-width="2.4"/>'; }
+    for (var v = 0; v < 11; v++) { var xx = 74 + v * 17.2; s += '<path d="M' + xx.toFixed(1) + ' 82 L' + (xx + (160 - xx) * 0.1).toFixed(1) + ' 160" stroke="#a87b48" stroke-width="1.6"/>'; }
+    s += '<rect x="52" y="70" width="216" height="12" rx="6" fill="#a87b48"/>';
+    s += '<rect x="138" y="74" width="44" height="5" rx="2.5" fill="#7a5530"/>';
+    return s + "</svg>";
+  }
+  function foldedSVG(seed) {
+    var r = rand(seed);
+    var s = '<svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Photo of folded laundry">';
+    s += '<rect width="320" height="180" fill="#eef1f5"/><rect y="132" width="320" height="48" fill="#d9cbb5"/><path d="M0 132h320" stroke="#c4b49b" stroke-width="2"/>';
+    var y = 132, layers = 5 + Math.floor(r() * 3);
+    for (var i = 0; i < layers; i++) {
+      var w = 130 + r() * 34, h = 13 + r() * 6, x = 112 - w / 2 + 40 + (r() - 0.5) * 8;
+      y -= h;
+      var c = CLOTH[Math.floor(r() * CLOTH.length)];
+      s += '<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + (h - 1).toFixed(1) + '" rx="5" fill="' + c + '"/>';
+      s += '<path d="M' + (x + w * 0.5).toFixed(1) + " " + (y + 2).toFixed(1) + "v" + (h - 5).toFixed(1) + '" stroke="rgba(0,0,0,.12)" stroke-width="1.5"/>';
+    }
+    var ty = 132;
+    for (var t = 0; t < 3; t++) { ty -= 15; s += '<rect x="214" y="' + ty + '" width="70" height="14" rx="5" fill="' + (t % 2 ? "#ffffff" : "#d8e4f2") + '"/>'; }
+    s += '<path d="M28 0l40 0 0 96" stroke="#dfe5ec" stroke-width="2" fill="none"/>';
+    return s + "</svg>";
+  }
+  function photo(ref, label) {
+    var inner;
+    if (!ref) return "";
+    if (ref.indexOf("sample:") === 0) inner = basketSVG(+ref.slice(7));
+    else if (ref.indexOf("folded:") === 0) inner = foldedSVG(+ref.slice(7));
+    else inner = '<img src="' + esc(ref) + '" alt="' + esc(label || "Photo") + '">';
+    return inner;
+  }
+
+  /* -------------------------------------------------------- fake QR */
+  function qrSVG(text) {
+    var N = 25, r = rand(hash(text)), M = [], R = [];
+    for (var y = 0; y < N; y++) { M.push([]); R.push([]); for (var x = 0; x < N; x++) { M[y].push(0); R[y].push(0); } }
+    function finder(ox, oy) {
+      for (var y = -1; y <= 7; y++) for (var x = -1; x <= 7; x++) {
+        var X = ox + x, Y = oy + y;
+        if (X < 0 || Y < 0 || X >= N || Y >= N) continue;
+        R[Y][X] = 1;
+        var edge = x === 0 || x === 6 || y === 0 || y === 6, core = x >= 2 && x <= 4 && y >= 2 && y <= 4;
+        M[Y][X] = (x >= 0 && x <= 6 && y >= 0 && y <= 6 && (edge || core)) ? 1 : 0;
+      }
+    }
+    finder(0, 0); finder(N - 7, 0); finder(0, N - 7);
+    for (var i = 8; i < N - 8; i++) { R[6][i] = R[i][6] = 1; M[6][i] = M[i][6] = i % 2 === 0 ? 1 : 0; }
+    for (var ay = -2; ay <= 2; ay++) for (var ax = -2; ax <= 2; ax++) {
+      var Y = 18 + ay, X = 18 + ax; R[Y][X] = 1;
+      M[Y][X] = (Math.max(Math.abs(ax), Math.abs(ay)) !== 1) ? 1 : 0;
+    }
+    for (var y2 = 0; y2 < N; y2++) for (var x2 = 0; x2 < N; x2++) if (!R[y2][x2]) M[y2][x2] = r() < 0.48 ? 1 : 0;
+    var d = "";
+    for (var y3 = 0; y3 < N; y3++) for (var x3 = 0; x3 < N; x3++) if (M[y3][x3]) d += "M" + (x3 + 2) + " " + (y3 + 2) + "h1v1h-1z";
+    return '<svg viewBox="0 0 ' + (N + 4) + " " + (N + 4) + '" shape-rendering="crispEdges" role="img" aria-label="Sample QR code"><rect width="' + (N + 4) + '" height="' + (N + 4) + '" fill="#ffffff"/><path d="' + d + '" fill="#0f1b2e"/></svg>';
+  }
+
+  /* -------------------------------------------------------- UI state */
+  var ui = {
+    stacks: { guest: [{ name: S.guest ? "orders" : "login" }], staff: [{ name: S.staff ? "queue" : "login" }] },
+    scroll: {},
+    error: null,
+  };
+  var drafts = {
+    guest: { photo: null, items: [], itemName: "", qty: 1 },
+    staff: { clientName: "", room: "", photo: null, items: [], itemName: "", qty: 1 },
+    login: { name: "", room: "", site: "harbour", fromQR: false },
+    staffLogin: { name: "" },
+    completion: {},
+  };
+  var draftSeq = 0;
+  var mode = S.mode === "staff" ? "staff" : "guest";
+
+  function stack() { return ui.stacks[mode]; }
+  function cur() { var st = stack(); return st[st.length - 1]; }
+  function routeKey(r) { return mode + ":" + r.name + ":" + ((r.params && r.params.id) || ""); }
+  function go(name, params) { saveScroll(); stack().push({ name: name, params: params || {} }); ui.error = null; render(true); }
+  function back() { saveScroll(); if (stack().length > 1) stack().pop(); ui.error = null; render(); }
+  function tab(name) { saveScroll(); ui.stacks[mode] = [{ name: name }]; ui.error = null; render(); }
+  function saveScroll() { var v = document.getElementById("view"); if (v) ui.scroll[routeKey(cur())] = v.scrollTop; }
+
+  /* ------------------------------------------------------- rendering */
+  var appEl = document.getElementById("app");
+  var toastsEl = document.getElementById("toasts");
+  var sheetEl = document.getElementById("sheet");
+
+  function clock() { var d = new Date(); return d.getHours() + ":" + String(d.getMinutes()).padStart(2, "0"); }
+  function statusBar() {
+    var sig = mode === "staff" && !S.signal
+      ? '<span class="nosig">No signal</span>'
+      : '<svg viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="currentColor"/><rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="currentColor"/><rect x="10" y="3" width="3" height="9" rx="1" fill="currentColor"/><rect x="15" y="0" width="3" height="12" rx="1" fill="currentColor"/></svg>';
+    var batt = '<svg viewBox="0 0 26 12"><rect x=".75" y=".75" width="21.5" height="10.5" rx="3" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".5"/><rect x="2.5" y="2.5" width="15" height="7" rx="1.5" fill="currentColor"/><rect x="23.5" y="4" width="2" height="4" rx="1" fill="currentColor" opacity=".5"/></svg>';
+    return '<div class="sbar ' + mode + '"><span id="clock">' + clock() + '</span><span class="icons">' + sig + batt + "</span></div>";
+  }
+  function urlBar() {
+    return '<div class="urlwrap">' + statusBar() + '<div class="urlbar">' + ic("lock") + esc(D.BRAND.domain) + "</div></div>";
+  }
+  function tabBar() {
+    var r = cur();
+    if (mode === "staff" && r.name === "order") return "";
+    if (r.name === "login") return "";
+    var tabs = mode === "guest"
+      ? [["new", "New Order", "camera"], ["orders", "My Orders", "list"], ["account", "Account", "user"]]
+      : [["queue", "Queue", "tray"], ["log", "Log Basket", "plusCircle"], ["completed", "Completed", "checkDone"], ["account", "Account", "user"]];
+    var root = stack()[0].name;
+    return '<nav class="tabbar" style="grid-template-columns:repeat(' + tabs.length + ',1fr)">' + tabs.map(function (t) {
+      return '<button class="tab" type="button" data-act="tab" data-to="' + t[0] + '"' + (root === t[0] ? ' aria-current="page"' : "") + ">" + ic(t[2]) + t[1] + "</button>";
+    }).join("") + "</nav>";
+  }
+
+  function render(toTop) {
+    var r = cur();
+    var view = VIEWS[mode][r.name] ? VIEWS[mode][r.name](r.params || {}) : "";
+    appEl.innerHTML = (mode === "guest" ? urlBar() : statusBar()) +
+      '<div class="view" id="view">' + view + "</div>" + tabBar();
+    var v = document.getElementById("view");
+    v.scrollTop = toTop ? 0 : (ui.scroll[routeKey(r)] || 0);
+    renderSide();
+  }
+
+  function badge(st) {
+    var l = { pending: "Awaiting pickup", in_progress: "In progress", completed: "Done" }[st];
+    return '<span class="badge b-' + st + '">' + l + "</span>";
+  }
+  function header(title, sub, withBack) {
+    return (withBack ? '<button class="back" type="button" data-act="back" aria-label="Back">' + ic("chevL") + "</button>" : "") +
+      '<h2 class="s-title">' + title + "</h2>" + (sub != null ? '<p class="s-sub">' + sub + "</p>" : "");
+  }
+  function empty(icon, title, sub) {
+    return '<div class="empty">' + ic(icon) + "<b>" + esc(title) + "</b><span>" + esc(sub) + "</span></div>";
+  }
+  function errorBox() {
+    return ui.error ? '<div class="error" role="alert">' + ic("alert") + "<div>" + esc(ui.error) + "</div></div>" : "";
+  }
+
+  /* shared editors: photo card + item list card (guest new order, staff log) */
+  function photoCard(target, title, hint) {
+    var d = drafts[target];
+    var body = d.photo
+      ? '<div class="photo">' + photo(d.photo, "Basket photo") + '<button class="chip-x" type="button" data-act="removePhoto" data-target="' + target + '">' + ic("close") + "Remove</button></div>"
+      : '<div class="btn-row"><button class="btn secondary" type="button" data-act="samplePhoto" data-target="' + target + '">' + ic("camera") + "Take Photo</button>" +
+        '<label class="btn outline" for="file-' + target + '" tabindex="0">' + ic("image") + "Choose Photo</label>" +
+        '<input type="file" accept="image/*" id="file-' + target + '" data-target="' + target + '" hidden></div>';
+    return '<section class="card"><h3>' + title + '</h3><p class="h-hint">' + hint + "</p>" + body + "</section>";
+  }
+  function itemsCard(target, title, hint) {
+    var d = drafts[target];
+    var list = d.items.length ? '<div class="items">' + d.items.map(function (it) {
+      return '<div class="item"><span class="qty">' + it.quantity + '</span><span class="nm">' + esc(it.name) + '</span><button class="icon-btn c-danger" type="button" data-act="removeItem" data-target="' + target + '" data-id="' + it.id + '" aria-label="Remove ' + esc(it.name) + '">' + ic("trash") + "</button></div>";
+    }).join("") + "</div>" : "";
+    var used = {}; d.items.forEach(function (it) { used[it.name.toLowerCase()] = 1; });
+    var quick = ["T-shirt", "Jeans", "Socks (pairs)", "Towel", "Shirt", "Underwear", "Shorts", "Dress"].filter(function (n) { return !used[n.toLowerCase()]; }).slice(0, 5);
+    return '<section class="card"><h3>' + title + '</h3><p class="h-hint">' + hint + "</p>" + list +
+      '<div class="addrow"><input class="input" id="item-' + target + '" data-target="' + target + '" placeholder="e.g. T-shirt" value="' + esc(d.itemName) + '" autocomplete="off" aria-label="Item name">' +
+      '<div class="stepper"><button type="button" data-act="qty" data-target="' + target + '" data-d="-1" aria-label="Fewer">' + ic("minus") + "</button><b>" + d.qty + '</b><button type="button" data-act="qty" data-target="' + target + '" data-d="1" aria-label="More">' + ic("plus") + "</button></div></div>" +
+      '<button class="btn outline mt" type="button" id="add-' + target + '" data-act="addItem" data-target="' + target + '"' + (d.itemName.trim() ? "" : " disabled") + ">Add Item</button>" +
+      (quick.length ? '<div class="quick">' + quick.map(function (n) { return '<button type="button" data-act="addQuick" data-target="' + target + '" data-name="' + esc(n) + '">+ ' + esc(n) + "</button>"; }).join("") + "</div>" : "") +
+      "</section>";
+  }
+  function siteRow() {
+    var site = mode === "guest" ? S.guest.site : S.staff.site;
+    return '<button class="card card-row tap mt" type="button" data-act="go" data-to="site">' +
+      '<div><div class="meta">Site</div><div class="who">' + esc(D.siteLabel(site)) + "</div></div>" + ic("chevR", "chev") + "</button>";
+  }
+
+  var VIEWS = { guest: {}, staff: {} };
+
+  /* ------------------------------------------------------- guest views */
+  VIEWS.guest.login = function () {
+    var L = drafts.login;
+    var rooms = '<option value="">Select your room</option>';
+    for (var i = 1; i <= 50; i++) rooms += '<option value="' + i + '"' + (String(i) === L.room ? " selected" : "") + ">Room " + i + "</option>";
+    var sites = D.SITES.map(function (s) { return '<option value="' + s.id + '"' + (s.id === L.site ? " selected" : "") + ">" + s.label + "</option>"; }).join("");
+    var ok = L.name.trim() && L.room;
+    return '<div class="pad"><div class="hotelmark">' + LOGO + "<div><span>" + esc(D.BRAND.company) + "</span><b>Laundry service</b></div></div>" +
+      header("Guest sign in", "Enter your details so staff know whose laundry this is.") +
+      (L.fromQR ? '<div class="note">' + ic("qr") + "<div>Room " + esc(L.room) + " · " + esc(D.siteLabel(L.site)) + " filled in from the card in your room.</div></div>" : "") +
+      '<label class="field"><span>Your name</span><input class="input" id="g-name" placeholder="e.g. Sarah Nkosi" value="' + esc(L.name) + '" autocomplete="off"></label>' +
+      '<label class="field"><span>Room number</span><select class="input" id="g-room">' + rooms + "</select></label>" +
+      '<label class="field"><span>Property</span><select class="input" id="g-site">' + sites + "</select></label>" +
+      '<button class="btn primary lg mt-l" type="button" id="g-continue" data-act="guestLogin"' + (ok ? "" : " disabled") + ">Continue</button></div>";
+  };
+
+  VIEWS.guest.new = function () {
+    var g = S.guest, d = drafts.guest;
+    var ok = d.photo && d.items.length;
+    return '<div class="pad">' + header("New Order", esc(g.name) + " · Room " + esc(g.roomNumber)) + errorBox() +
+      photoCard("guest", "1. Photo of your basket", "A clear photo helps staff confirm everything on arrival.") +
+      itemsCard("guest", "2. List every item", "Add each item in the basket so nothing gets lost.") +
+      '<button class="btn primary lg mt" type="button" data-act="submitGuest"' + (ok ? "" : " disabled") + ">Submit Order</button>" +
+      (ok ? "" : '<p class="listnote">Add a photo and at least one item to submit.</p>') + "</div>";
+  };
+
+  function myOrders() {
+    var g = S.guest;
+    return S.orders.filter(function (o) {
+      return o.clientName.trim().toLowerCase() === g.name.trim().toLowerCase() && o.roomNumber === g.roomNumber && o.site === g.site;
+    }).sort(function (a, b) { return a.submittedAt < b.submittedAt ? 1 : -1; });
+  }
+
+  VIEWS.guest.orders = function () {
+    var g = S.guest, mine = myOrders();
+    var hasActive = mine.some(function (o) { return o.status !== "completed"; });
+    var banner = "";
+    if (S.guestPush === "default") {
+      banner = '<button class="banner" type="button" data-act="askPush"><span class="ic">' + ic("bell") + "</span><span style=\"flex:1\"><b>Tell me when it's ready</b><span>Get a notification the moment your laundry is done, even with this page closed.</span></span>" + ic("chevR", "chev") + "</button>";
+    } else if (S.guestPush === "denied") {
+      banner = '<div class="banner ok" style="background:var(--s-bg);border-color:var(--s-border)"><span class="ic" style="color:var(--s-muted)">' + ic("bellOff") + "</span><span><span>Notifications are blocked for this site. To turn them on, tap the icon next to the web address and allow notifications.</span></span></div>";
+    } else if (hasActive) {
+      banner = '<div class="banner ok"><span class="ic">' + ic("bell") + "</span><span><b>Notifications on</b><span>We'll let you know when your basket is ready.</span></span></div>";
+    }
+    var rows = mine.map(function (o) {
+      return '<button class="card tap" type="button" data-act="open" data-id="' + o.id + '"><div class="card-row">' + badge(o.status) + '<span class="meta">' + fmtRel(o.submittedAt) + '</span></div><div class="card-row" style="margin-top:12px"><span>' + plural(total(o), "item") + " · " + plural(o.items.length, "type") + "</span>" + ic("chevR", "chev") + "</div></button>";
+    }).join("");
+    return '<div class="pad">' + header("My Orders", esc(g.name) + " · Room " + esc(g.roomNumber)) + banner +
+      (mine.length ? '<div class="list">' + rows + "</div>" : empty("basket", "No orders yet", "Submit a basket from the New Order tab to see it here.")) + "</div>";
+  };
+
+  VIEWS.guest.order = function (p) {
+    var o = find(p.id);
+    if (!o) return '<div class="pad">' + header("Order", "Order not found.", true) + "</div>";
+    var steps = [
+      ["Submitted", true, o.submittedAt],
+      ["Collected by staff", !!o.collectedAt, o.collectedAt],
+      ["Washed, dried & folded", o.status === "completed", o.completedAt],
+    ];
+    var tl = steps.map(function (s, i) {
+      return '<div class="tl' + (s[1] ? " done" : "") + '"><div class="mk"><span class="dot">' + (s[1] ? ic("check") : "") + "</span>" + (i < steps.length - 1 ? '<span class="ln"></span>' : "") + '</div><div class="tx"><b>' + s[0] + "</b>" + (s[2] ? "<span>" + fmtDT(s[2]) + "</span>" : "") + "</div></div>";
+    }).join("");
+    var items = o.items.map(function (it) {
+      var chk = o.status !== "pending" ? (o.itemChecks[it.id] ? checkCircle("c-success") : ring("c-grey")) : "";
+      return '<div class="item"><span class="qty">' + it.quantity + '</span><span class="nm">' + esc(it.name) + "</span>" + chk + "</div>";
+    }).join("");
+    var done = o.status === "completed" ? '<section class="card"><h3>Completed</h3><div class="chips" style="margin-top:10px">' +
+      ["Washed", "Dried", "Folded"].map(function (l) { return '<span class="chipst on">' + checkCircle() + l + "</span>"; }).join("") + "</div>" +
+      (o.completedPhoto ? '<div class="photo mt">' + photo(o.completedPhoto, "Folded laundry") + "</div>" : "") +
+      (o.completedBy ? '<p class="meta" style="margin:10px 0 0">Handled by ' + esc(o.completedBy) + "</p>" : "") + "</section>" : "";
+    return '<div class="pad"><button class="back" type="button" data-act="back" aria-label="Back">' + ic("chevL") + "</button>" +
+      '<div class="card-row" style="align-items:flex-start"><h2 class="s-title">Order #' + shortId(o) + "</h2>" + badge(o.status) + "</div>" +
+      '<p class="s-sub">Submitted ' + fmtDT(o.submittedAt) + "</p>" +
+      '<section class="card"><h3>Status</h3><div class="timeline" style="margin-top:12px">' + tl + "</div></section>" +
+      (o.basketPhoto ? '<section class="card"><h3 style="margin-bottom:10px">Your basket</h3><div class="photo">' + photo(o.basketPhoto, "Basket photo") + "</div></section>" : "") +
+      '<section class="card"><h3>Items (' + total(o) + ' total)</h3><div class="items" style="margin:6px 0 0">' + items + "</div></section>" + done + "</div>";
+  };
+
+  VIEWS.guest.account = function () {
+    var g = S.guest;
+    return '<div class="pad">' + header("Account") +
+      '<section class="card profile"><span class="avatar">' + ic("person") + '</span><span class="nm">' + esc(g.name) + '</span><span class="meta">Room ' + esc(g.roomNumber) + '</span><span class="roletag">Guest mode</span></section>' +
+      siteRow() +
+      '<section class="card mt"><h3>About Cove Laundry</h3><p class="meta" style="margin:6px 0 0;font-size:14px">Submit a photo and list of your laundry from the New Order tab. You\'ll see live status updates here once our staff collect, process and complete your order.</p></section>' +
+      '<button class="btn outline mt-l" type="button" data-act="signOut">' + ic("swap") + "Sign Out</button></div>";
+  };
+
+  VIEWS.guest.site = VIEWS.staff.site = function () {
+    var cur = mode === "guest" ? S.guest.site : S.staff.site;
+    return '<div class="pad">' + header("Select Site", "Choose which property " + (mode === "guest" ? "you're staying at." : "this device is managing laundry for. Both share the same orders system, so this just filters what you see here."), true) +
+      '<div class="list">' + D.SITES.map(function (s) {
+        return '<button class="card card-row tap" type="button" data-act="pickSite" data-site="' + s.id + '"' + (s.id === cur ? ' style="border-color:var(--s-accent)"' : "") + '><span class="who">' + s.label + "</span>" + (s.id === cur ? checkCircle("c-success") .replace('class="c-success"', 'class="c-success" style="width:22px;height:22px;color:var(--s-accent)"') : "") + "</button>";
+      }).join("") + "</div></div>";
+  };
+
+  /* ------------------------------------------------------- staff views */
+  VIEWS.staff.login = function () {
+    var L = drafts.staffLogin;
+    return '<div class="pad"><div class="hotelmark">' + LOGO + "<div><span>" + esc(D.BRAND.company) + "</span><b>Laundry staff</b></div></div>" +
+      header("Staff sign in", "Enter your name so guests can see who processed their order.") +
+      '<label class="field"><span>Staff name</span><input class="input" id="s-name" placeholder="e.g. Thabo M." value="' + esc(L.name) + '" autocomplete="off"></label>' +
+      '<div class="namechips">' + D.STAFF.map(function (n) { return '<button type="button" data-act="staffPick" data-name="' + esc(n) + '">' + esc(n) + "</button>"; }).join("") + "</div>" +
+      '<button class="btn primary lg mt-l" type="button" id="s-continue" data-act="staffLogin"' + (L.name.trim() ? "" : " disabled") + ">Continue</button></div>";
+  };
+
+  function siteOrders() { var s = S.staff.site; return S.orders.filter(function (o) { return o.site === s; }); }
+
+  VIEWS.staff.queue = function () {
+    var q = siteOrders().filter(function (o) { return o.status !== "completed"; })
+      .sort(function (a, b) { return a.submittedAt < b.submittedAt ? -1 : 1; });
+    var pend = q.filter(function (o) { return o.status === "pending"; }).length;
+    var rows = q.map(function (o) {
+      return '<button class="card tap" type="button" data-act="open" data-id="' + o.id + '"><div class="card-row" style="align-items:flex-start"><span class="who">' + esc(o.clientName) + " · Room " + esc(o.roomNumber) + "</span>" + badge(o.status) + "</div>" +
+        (o.local ? '<span class="unsynced">' + ic("phone") + "On this phone · uploads when you're online</span>" : "") +
+        '<div class="card-row" style="margin-top:10px"><span class="meta">' + plural(total(o), "item") + " · submitted " + fmtRel(o.submittedAt) + "</span>" + ic("chevR", "chev") + "</div>" +
+        (o.status === "pending" ? '<div class="hint-line">' + ic("basket") + "Tap to collect</div>" : "") + "</button>";
+    }).join("");
+    return '<div class="pad">' + header("Queue", pend + " awaiting pickup · " + (q.length - pend) + " in progress · " + esc(D.siteLabel(S.staff.site))) +
+      (q.length ? '<div class="list">' + rows + "</div>" : empty("checkDone", "Queue is empty", "New guest orders will show up here as soon as they're submitted.")) + "</div>";
+  };
+
+  VIEWS.staff.log = function () {
+    var d = drafts.staff;
+    var ok = d.clientName.trim() && d.room.trim() && d.items.length;
+    return '<div class="pad">' + header("Log a Basket", "For guests who can't submit an order themselves.") + errorBox() +
+      '<div class="offline-note">' + ic("cloudOff") + "<div>Works with no signal. Saved on this phone, added straight to your queue, and uploaded automatically once you're back online.</div></div>" +
+      '<section class="card"><h3 style="margin-bottom:12px">1. Whose laundry is it?</h3><div style="display:grid;gap:10px"><input class="input" id="l-name" placeholder="Guest name" value="' + esc(d.clientName) + '" autocomplete="off" aria-label="Guest name"><input class="input" id="l-room" placeholder="Room number" inputmode="numeric" value="' + esc(d.room) + '" autocomplete="off" aria-label="Room number"></div></section>' +
+      photoCard("staff", "2. Photo of the basket", "Proof of what you collected, in case anything is queried later.") +
+      itemsCard("staff", "3. List every item", "Count them in front of the guest so nothing goes missing.") +
+      '<button class="btn primary lg mt" type="button" id="l-submit" data-act="logBasket"' + (ok ? "" : " disabled") + ">Log Basket &amp; Collect</button></div>";
+  };
+
+  VIEWS.staff.completed = function () {
+    var c = siteOrders().filter(function (o) { return o.status === "completed"; })
+      .sort(function (a, b) { return (a.completedAt || "") < (b.completedAt || "") ? 1 : -1; });
+    var shown = c.slice(0, 40);
+    var rows = shown.map(function (o) {
+      return '<button class="card tap" type="button" data-act="open" data-id="' + o.id + '"><div class="card-row"><span class="who">' + esc(o.clientName) + " · Room " + esc(o.roomNumber) + "</span>" + checkCircle("c-success").replace("<svg", '<svg style="width:18px;height:18px;flex:none"') + "</div>" +
+        '<div class="meta" style="margin-top:6px">' + plural(total(o), "item") + (o.completedAt ? " · completed " + fmtDT(o.completedAt) : "") + "</div>" +
+        (o.completedBy ? '<div class="meta" style="font-size:12px;margin-top:2px">Handled by ' + esc(o.completedBy) + "</div>" : "") + "</button>";
+    }).join("");
+    return '<div class="pad">' + header("Completed", c.length + " orders finished · " + esc(D.siteLabel(S.staff.site))) +
+      (c.length ? '<div class="list">' + rows + "</div>" + (c.length > shown.length ? '<p class="listnote">Showing the latest ' + shown.length + ". The dashboard has the full history.</p>" : "")
+        : empty("sparkles", "Nothing completed yet", "Finished orders will appear here for your records.")) + "</div>";
+  };
+
+  VIEWS.staff.account = function () {
+    var today = siteOrders().filter(function (o) { return isToday(o.submittedAt) || o.status !== "completed"; });
+    var st = {
+      p: today.filter(function (o) { return o.status === "pending"; }).length,
+      i: today.filter(function (o) { return o.status === "in_progress"; }).length,
+      c: siteOrders().filter(function (o) { return o.status === "completed" && o.completedAt && isToday(o.completedAt); }).length,
+    };
+    var waiting = S.orders.filter(function (o) { return o.local; }).length;
+    return '<div class="pad">' + header("Account") +
+      '<section class="card profile"><span class="avatar">' + ic("shirt") + '</span><span class="nm">' + esc(S.staff.name) + '</span><span class="roletag">Staff mode</span></section>' +
+      siteRow() +
+      '<section class="card mt"><h3>Today at a glance</h3><div class="statrow">' +
+      '<div class="stat"><b style="color:var(--s-warning)">' + st.p + "</b><span>Awaiting</span></div>" +
+      '<div class="stat"><b style="color:var(--s-accent-l)">' + st.i + "</b><span>In progress</span></div>" +
+      '<div class="stat"><b style="color:var(--s-success)">' + st.c + "</b><span>Completed</span></div></div></section>" +
+      '<section class="card mt"><div class="card-row"><div><h3>Phone signal</h3><p class="meta" style="margin:4px 0 0">Demo control. ' + (waiting ? plural(waiting, "basket") + " waiting to upload." : "Nothing waiting to upload.") + '</p></div><button class="switch" type="button" role="switch" aria-label="Phone signal" aria-checked="' + (S.signal ? "true" : "false") + '" data-act="toggleSignal"></button></div></section>' +
+      '<button class="btn outline mt-l" type="button" data-act="signOut">' + ic("swap") + "Sign Out</button></div>";
+  };
+
+  VIEWS.staff.order = function (p) {
+    var o = find(p.id);
+    if (!o) return '<div class="pad">' + header("Order", "Order not found.", true) + "</div>";
+    var editable = o.status === "in_progress";
+    var allChecked = o.items.length && o.items.every(function (it) { return o.itemChecks[it.id]; });
+    var stages = o.washed && o.dried && o.folded;
+    var comp = drafts.completion[o.id] || null;
+    var canComplete = editable && allChecked && stages && comp;
+    var items = o.items.map(function (it) {
+      var c = !!o.itemChecks[it.id];
+      return '<button class="item" type="button" data-act="check" data-id="' + o.id + '" data-item="' + it.id + '"' + (editable ? "" : " disabled") + ">" +
+        (c ? boxChecked("c-success") : boxEmpty("c-grey")) + '<span class="qty">' + it.quantity + '</span><span class="nm' + (c ? " checked" : "") + '">' + esc(it.name) + "</span></button>";
+    }).join("");
+    function stage(key, label, icon) {
+      return '<button class="stage' + (o[key] ? " on" : "") + '" type="button" data-act="stage" data-id="' + o.id + '" data-key="' + key + '"' + (editable ? "" : " disabled") + ' aria-pressed="' + (o[key] ? "true" : "false") + '">' + ic(icon) + label + "</button>";
+    }
+    var missing = [];
+    if (editable) {
+      if (!allChecked) missing.push("tick every item");
+      if (!stages) missing.push("mark washed, dried and folded");
+      if (!comp) missing.push("add a completion photo");
+    }
+    return '<div class="pad"><button class="back" type="button" data-act="back" aria-label="Back">' + ic("chevL") + "</button>" +
+      '<div class="card-row" style="align-items:flex-start"><h2 class="s-title" style="font-size:23px">' + esc(o.clientName) + " · Room " + esc(o.roomNumber) + "</h2>" + badge(o.status) + "</div>" +
+      '<p class="s-sub">Submitted ' + fmtDT(o.submittedAt) + (o.loggedBy ? " · logged by " + esc(o.loggedBy) : "") + "</p>" +
+      (o.local ? '<div class="error" style="background:var(--s-warning-l);color:var(--s-warning)">' + ic("phone") + "<div>Saved on this phone only. You can work through it as normal. It uploads by itself once you're back online.</div></div>" : "") +
+      (o.basketPhoto ? '<section class="card"><h3 style="margin-bottom:10px">Guest\'s basket photo</h3><div class="photo">' + photo(o.basketPhoto, "Basket photo") + "</div></section>" : "") +
+      (o.status === "pending" ? '<button class="btn primary lg mt" type="button" data-act="collect" data-id="' + o.id + '">' + ic("basket") + "Collect Order</button>" : "") +
+      '<section class="card mt"><div class="card-row"><h3>Item checklist (' + total(o) + " total)</h3>" + (allChecked ? checkCircle("c-success").replace("<svg", '<svg style="width:18px;height:18px"') : "") + "</div>" +
+      '<p class="h-hint">Confirm every item listed by the guest is accounted for.</p><div class="items" style="margin:0">' + items + "</div></section>" +
+      '<section class="card"><h3>Processing</h3><p class="h-hint">Mark each stage as it\'s completed.</p><div class="stages">' + stage("washed", "Washed", "water") + stage("dried", "Dried", "sun") + stage("folded", "Folded", "fold") + "</div></section>" +
+      (editable ? '<section class="card"><h3>Completion photo</h3><p class="h-hint">Take a photo of the finished, folded laundry.</p>' +
+        (comp ? '<div class="photo">' + photo(comp, "Folded laundry") + '<button class="chip-x" type="button" data-act="removeComp" data-id="' + o.id + '">' + ic("close") + "Remove</button></div>"
+          : '<div class="btn-row"><button class="btn secondary" type="button" data-act="compPhoto" data-id="' + o.id + '">' + ic("camera") + "Take Photo</button>" +
+            '<label class="btn outline" for="file-comp" tabindex="0">' + ic("image") + 'Choose Photo</label><input type="file" accept="image/*" id="file-comp" data-target="comp" data-id="' + o.id + '" hidden></div>') + "</section>" +
+        '<button class="btn primary lg mt" type="button" data-act="complete" data-id="' + o.id + '"' + (canComplete ? "" : " disabled") + ">" + ic("checkDone") + "Mark Complete</button>" +
+        (missing.length ? '<p class="listnote">To finish: ' + missing.join(", ") + ".</p>" : "") : "") +
+      (o.status === "completed" ? '<section class="card"><h3>Completed</h3>' + (o.completedPhoto ? '<div class="photo mt">' + photo(o.completedPhoto, "Folded laundry") + "</div>" : "") +
+        (o.completedBy ? '<p class="meta" style="margin:10px 0 0">Handled by ' + esc(o.completedBy) + (o.completedAt ? " · " + fmtDT(o.completedAt) : "") + "</p>" : "") + "</section>" : "") +
+      "</div>";
+  };
+
+  /* ---------------------------------------------------- toasts, sheet */
+  function toast(title, body, ms) {
+    var t = document.createElement("div");
+    t.className = "toast";
+    t.innerHTML = "<b>" + esc(title) + "</b>" + (body ? esc(body) : "");
+    toastsEl.appendChild(t);
+    setTimeout(function () { t.remove(); }, ms || 3400);
+  }
+  function pushNote(o) {
+    var t = document.createElement("div");
+    t.className = "toast push";
+    t.setAttribute("role", "button");
+    t.tabIndex = 0;
+    t.innerHTML = '<span class="appic">' + ic("water") + "</span><div><small>" + esc(D.BRAND.app) + " · now</small><b>Your laundry is ready</b><span>Room " + esc(o.roomNumber) + ": " + plural(total(o), "item") + " washed, dried and folded. Tap to view.</span></div>";
+    function openIt() {
+      t.remove();
+      S.tour.notified = true; persist();
+      if (mode !== "guest") setMode("guest");
+      ui.stacks.guest = [{ name: "orders" }, { name: "order", params: { id: o.id } }];
+      render(true);
+    }
+    t.addEventListener("click", openIt);
+    t.addEventListener("keydown", function (e) { if (e.key === "Enter") openIt(); });
+    toastsEl.appendChild(t);
+    setTimeout(function () { t.remove(); }, 9000);
+  }
+  function sheet(opts) {
+    sheetEl.innerHTML = '<div class="sheetbox" role="dialog" aria-modal="true" aria-label="' + esc(opts.title) + '"><h3>' + esc(opts.title) + "</h3><p>" + esc(opts.body) + '</p><div class="btn-row"><button class="btn outline" type="button" data-sheet="no">' + esc(opts.no || "Cancel") + '</button><button class="btn primary" type="button" data-sheet="yes">' + esc(opts.yes) + "</button></div></div>";
+    sheetEl.hidden = false;
+    sheetEl.onclick = function (e) {
+      var b = e.target.closest("[data-sheet]");
+      if (!b && e.target !== sheetEl) return;
+      sheetEl.hidden = true; sheetEl.innerHTML = "";
+      if (b && b.dataset.sheet === "yes") opts.onYes && opts.onYes();
+      else opts.onNo && opts.onNo();
+    };
+    var y = sheetEl.querySelector('[data-sheet="yes"]'); if (y) y.focus();
+  }
+
+  /* -------------------------------------------------------- rules */
+  // Mirrors the database rules in the real app's migrations.
+  function checkRules(site, room) {
+    var n = parseInt(room, 10);
+    if (!(n >= 1 && n <= 50) || String(n) !== String(room).trim()) return "Room numbers run from 1 to 50. Check the number and try again.";
+    var active = S.orders.some(function (o) { return o.site === site && o.roomNumber === String(n) && o.status !== "completed"; });
+    if (active) return "Room " + n + " already has a basket on the go. Another one can be sent once it's done.";
+    var roomToday = S.orders.filter(function (o) { return o.site === site && o.roomNumber === String(n) && isToday(o.submittedAt); }).length;
+    if (roomToday >= 5) return "Room " + n + " has already sent 5 baskets today, which is the daily limit.";
+    var siteToday = S.orders.filter(function (o) { return o.site === site && isToday(o.submittedAt); }).length;
+    if (siteToday >= 50) return D.siteLabel(site) + " has reached today's limit of 50 baskets. Please ask at reception.";
+    return null;
+  }
+
+  function newOrder(fields) {
+    var id = fields.local ? D.uid("local_") : D.uid("ord_");
+    var items = fields.items.map(function (it, i) { return { id: id + "_i" + i, name: it.name, quantity: it.quantity }; });
+    var o = D.blankOrder(Object.assign({}, fields, { id: id, items: items, submittedAt: new Date().toISOString(), demoUser: true }));
+    S.orders.unshift(o);
+    return o;
+  }
+
+  function syncLocal() {
+    var moved = 0;
+    S.orders.forEach(function (o) {
+      if (!o.local) return;
+      var old = o.id, nid = D.uid("ord_");
+      o.id = nid; o.local = false;
+      o.items.forEach(function (it, i) {
+        var nk = nid + "_i" + i;
+        if (o.itemChecks[it.id] != null) { o.itemChecks[nk] = o.itemChecks[it.id]; delete o.itemChecks[it.id]; }
+        it.id = nk;
+      });
+      if (drafts.completion[old]) { drafts.completion[nid] = drafts.completion[old]; delete drafts.completion[old]; }
+      ["guest", "staff"].forEach(function (m) {
+        ui.stacks[m].forEach(function (r) { if (r.params && r.params.id === old) r.params.id = nid; });
+      });
+      moved++;
+    });
+    if (moved) {
+      persist();
+      if (mode === "staff") { render(); toast("Back online", plural(moved, "logged basket") + " uploaded."); }
+    }
+  }
+  var syncTimer = null;
+  function scheduleSync() {
+    clearTimeout(syncTimer);
+    if (S.signal) syncTimer = setTimeout(syncLocal, 2600);
+  }
+
+  function markProcessed(o) {
+    if (o.washed && o.dried && o.folded && o.items.every(function (it) { return o.itemChecks[it.id]; })) S.tour.processed = true;
+  }
+
+  function readFile(file, cb) {
+    var fr = new FileReader();
+    fr.onload = function () {
+      var img = new Image();
+      img.onload = function () {
+        var max = 720, w = img.width, h = img.height, k = Math.min(1, max / Math.max(w, h));
+        var c = document.createElement("canvas"); c.width = Math.round(w * k); c.height = Math.round(h * k);
+        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+        try { cb(c.toDataURL("image/jpeg", 0.72)); } catch (e) { cb(fr.result); }
+      };
+      img.onerror = function () { toast("Couldn't open that file", "Choose a JPG or PNG photo."); };
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(file);
+  }
+
+  /* -------------------------------------------------------- actions */
+  var A = {
+    tab: function (el) { tab(el.dataset.to); },
+    go: function (el) { go(el.dataset.to); },
+    back: back,
+    open: function (el) { go("order", { id: el.dataset.id }); },
+
+    guestLogin: function () {
+      var L = drafts.login;
+      if (!L.name.trim() || !L.room) return;
+      S.guest = { name: L.name.trim(), roomNumber: L.room, site: L.site };
+      persist();
+      drafts.login = { name: "", room: "", site: "harbour", fromQR: false };
+      ui.stacks.guest = [{ name: myOrders().length ? "orders" : "new" }];
+      render(true);
+    },
+    staffPick: function (el) {
+      drafts.staffLogin.name = el.dataset.name;
+      var i = document.getElementById("s-name"); if (i) i.value = el.dataset.name;
+      var b = document.getElementById("s-continue"); if (b) b.disabled = false;
+    },
+    staffLogin: function () {
+      var n = drafts.staffLogin.name.trim(); if (!n) return;
+      S.staff = { name: n, site: (S.staff && S.staff.site) || "harbour" };
+      persist();
+      drafts.staffLogin = { name: "" };
+      ui.stacks.staff = [{ name: "queue" }];
+      render(true);
+    },
+    signOut: function () {
+      sheet({
+        title: "Sign out?",
+        body: mode === "guest" ? "This signs you out of guest mode on this device." : "This signs you out of staff mode on this device.",
+        yes: "Sign out",
+        onYes: function () {
+          if (mode === "guest") S.guest = null; else S.staff = null;
+          persist();
+          ui.stacks[mode] = [{ name: "login" }];
+          render(true);
+        },
+      });
+    },
+    pickSite: function (el) {
+      if (mode === "guest") S.guest.site = el.dataset.site; else S.staff.site = el.dataset.site;
+      persist(); back();
+    },
+
+    samplePhoto: function (el) { drafts[el.dataset.target].photo = "sample:" + Math.floor(Math.random() * 1e6); ui.error = null; render(); },
+    removePhoto: function (el) { drafts[el.dataset.target].photo = null; render(); },
+    qty: function (el) { var d = drafts[el.dataset.target]; d.qty = Math.max(1, Math.min(30, d.qty + (+el.dataset.d))); render(); },
+    addItem: function (el) {
+      var d = drafts[el.dataset.target], n = d.itemName.trim(); if (!n) return;
+      d.items.push({ id: "draft_" + (++draftSeq), name: n, quantity: d.qty });
+      d.itemName = ""; d.qty = 1; ui.error = null; render();
+      var i = document.getElementById("item-" + el.dataset.target); if (i) i.focus();
+    },
+    addQuick: function (el) {
+      var d = drafts[el.dataset.target];
+      d.items.push({ id: "draft_" + (++draftSeq), name: el.dataset.name, quantity: d.qty });
+      d.qty = 1; ui.error = null; render();
+    },
+    removeItem: function (el) { var d = drafts[el.dataset.target]; d.items = d.items.filter(function (i) { return i.id !== el.dataset.id; }); render(); },
+
+    submitGuest: function () {
+      var g = S.guest, d = drafts.guest;
+      if (!d.photo || !d.items.length) return;
+      var err = checkRules(g.site, g.roomNumber);
+      if (err) { ui.error = err; render(true); return; }
+      var o = newOrder({ clientName: g.name, roomNumber: g.roomNumber, site: g.site, items: d.items, basketPhoto: d.photo, notify: S.guestPush === "granted" });
+      drafts.guest = { photo: null, items: [], itemName: "", qty: 1 };
+      S.tour.submitted = true; persist();
+      ui.stacks.guest = [{ name: "orders" }];
+      render(true);
+      toast("Order submitted", "Laundry staff will collect your basket shortly.");
+      return o;
+    },
+    askPush: function () {
+      sheet({
+        title: D.BRAND.domain + " wants to",
+        body: "Show notifications",
+        yes: "Allow", no: "Block",
+        onYes: function () {
+          S.guestPush = "granted";
+          myOrders().forEach(function (o) { if (o.status !== "completed") o.notify = true; });
+          persist(); render();
+        },
+        onNo: function () { S.guestPush = "denied"; persist(); render(); },
+      });
+    },
+
+    collect: function (el) {
+      var o = find(el.dataset.id); if (!o || o.status !== "pending") return;
+      o.status = "in_progress"; o.collectedBy = S.staff.name; o.collectedAt = new Date().toISOString();
+      S.tour.collected = true; persist(); render();
+      toast("Collected", "Basket for Room " + o.roomNumber + " is now in progress.");
+    },
+    check: function (el) {
+      var o = find(el.dataset.id); if (!o || o.status !== "in_progress") return;
+      o.itemChecks[el.dataset.item] = !o.itemChecks[el.dataset.item]; markProcessed(o); persist(); render();
+    },
+    stage: function (el) {
+      var o = find(el.dataset.id); if (!o || o.status !== "in_progress") return;
+      o[el.dataset.key] = !o[el.dataset.key]; markProcessed(o); persist(); render();
+    },
+    compPhoto: function (el) { drafts.completion[el.dataset.id] = "folded:" + Math.floor(Math.random() * 1e6); render(); },
+    removeComp: function (el) { delete drafts.completion[el.dataset.id]; render(); },
+    complete: function (el) {
+      var o = find(el.dataset.id); if (!o) return;
+      var comp = drafts.completion[o.id];
+      var ok = o.status === "in_progress" && o.items.every(function (it) { return o.itemChecks[it.id]; }) && o.washed && o.dried && o.folded && comp;
+      if (!ok) return;
+      o.status = "completed"; o.completedPhoto = comp; o.completedBy = S.staff.name; o.completedAt = new Date().toISOString();
+      delete drafts.completion[o.id];
+      S.tour.processed = true; S.tour.completed = true;
+      var guestOrder = S.guest && o.clientName.toLowerCase() === S.guest.name.toLowerCase() && o.roomNumber === S.guest.roomNumber && o.site === S.guest.site;
+      if (o.notify) S.pendingPush.push(o.id);
+      persist();
+      back();
+      toast("Order completed", o.notify ? "Push notification sent to the guest." : "The guest can now see this order as done.");
+      if (o.notify && guestOrder) setTimeout(function () { if (mode === "staff") toast("See it as the guest", "Switch to Guest view to see the notification arrive.", 4200); }, 900);
+    },
+
+    logBasket: function () {
+      var d = drafts.staff;
+      if (!d.clientName.trim() || !d.room.trim() || !d.items.length) return;
+      var err = checkRules(S.staff.site, d.room.trim());
+      if (err) { ui.error = err; render(true); return; }
+      var now = new Date().toISOString();
+      newOrder({
+        clientName: d.clientName.trim(), roomNumber: String(parseInt(d.room, 10)), site: S.staff.site, items: d.items,
+        basketPhoto: d.photo, status: "in_progress", collectedBy: S.staff.name, collectedAt: now, loggedBy: S.staff.name, local: true,
+      });
+      drafts.staff = { clientName: "", room: "", photo: null, items: [], itemName: "", qty: 1 };
+      S.tour.logged = true; persist();
+      ui.stacks.staff = [{ name: "queue" }];
+      render(true);
+      toast("Basket logged", S.signal ? "Saved on this phone and in your queue. Uploading now." : "Saved on this phone and already in your queue. It uploads by itself once you're back online.", 4200);
+      scheduleSync();
+    },
+    toggleSignal: function () {
+      S.signal = !S.signal; persist(); render();
+      if (S.signal) scheduleSync();
+    },
+  };
+
+  /* -------------------------------------------------------- events */
+  appEl.addEventListener("click", function (e) {
+    var el = e.target.closest("[data-act]");
+    if (!el || el.disabled) return;
+    var fn = A[el.dataset.act];
+    if (fn) fn(el);
+  });
+  appEl.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && e.target.id && e.target.id.indexOf("item-") === 0) {
+      e.preventDefault();
+      A.addItem(e.target);
+    } else if ((e.key === "Enter" || e.key === " ") && e.target.matches("label.btn")) {
+      e.preventDefault();
+      var inp = document.getElementById(e.target.getAttribute("for")); if (inp) inp.click();
+    }
+  });
+  appEl.addEventListener("input", function (e) {
+    var t = e.target, id = t.id;
+    if (id.indexOf("item-") === 0) {
+      drafts[t.dataset.target].itemName = t.value;
+      var b = document.getElementById("add-" + t.dataset.target); if (b) b.disabled = !t.value.trim();
+    } else if (id === "g-name") {
+      drafts.login.name = t.value; updateGuestContinue();
+    } else if (id === "s-name") {
+      drafts.staffLogin.name = t.value;
+      document.getElementById("s-continue").disabled = !t.value.trim();
+    } else if (id === "l-name" || id === "l-room") {
+      if (id === "l-name") drafts.staff.clientName = t.value; else drafts.staff.room = t.value;
+      var d = drafts.staff;
+      document.getElementById("l-submit").disabled = !(d.clientName.trim() && d.room.trim() && d.items.length);
+    }
+  });
+  appEl.addEventListener("change", function (e) {
+    var t = e.target;
+    if (t.id === "g-room") { drafts.login.room = t.value; drafts.login.fromQR = false; updateGuestContinue(); }
+    else if (t.id === "g-site") { drafts.login.site = t.value; drafts.login.fromQR = false; }
+    else if (t.type === "file" && t.files && t.files[0]) {
+      readFile(t.files[0], function (url) {
+        if (t.dataset.target === "comp") drafts.completion[t.dataset.id] = url;
+        else drafts[t.dataset.target].photo = url;
+        ui.error = null; render();
+      });
+    }
+  });
+  function updateGuestContinue() {
+    var b = document.getElementById("g-continue");
+    if (b) b.disabled = !(drafts.login.name.trim() && drafts.login.room);
+  }
+
+  /* ---------------------------------------------------- mode + side */
+  function setMode(m) {
+    if (m === mode) return;
+    saveScroll();
+    mode = m; S.mode = m; persist();
+    toastsEl.innerHTML = "";
+    sheetEl.hidden = true;
+    render();
+    if (m === "guest" && S.pendingPush.length) {
+      var ids = S.pendingPush.slice(); S.pendingPush = []; persist();
+      ids.forEach(function (id, i) {
+        var o = find(id);
+        if (o) setTimeout(function () { pushNote(o); }, 700 + i * 600);
+      });
+    }
+  }
+  document.getElementById("modes").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-mode]"); if (b) setMode(b.dataset.mode);
+  });
+
+  var STEPS = [
+    { k: "submitted", t: "Send a basket as a guest", s: "Add a photo and list the items, then submit.", go: function () { setMode("guest"); if (!S.guest) return; ui.stacks.guest = [{ name: "new" }]; render(true); } },
+    { k: "collected", t: "Collect it in the staff app", s: "Open the queue and tap Collect Order.", go: function () { setMode("staff"); if (!S.staff) return; ui.stacks.staff = [{ name: "queue" }]; render(true); } },
+    { k: "processed", t: "Tick items, wash, dry and fold", s: "Every item and stage, plus a completion photo.", go: function () { setMode("staff"); if (!S.staff) return; var o = siteOrders().filter(function (x) { return x.status === "in_progress"; }).sort(function (a, b) { return a.demoUser === b.demoUser ? 0 : a.demoUser ? -1 : 1; })[0]; ui.stacks.staff = o ? [{ name: "queue" }, { name: "order", params: { id: o.id } }] : [{ name: "queue" }]; render(true); } },
+    { k: "completed", t: "Mark it complete", s: "The button unlocks once everything is done.", go: null },
+    { k: "notified", t: "Get the guest's notification", s: "Turn notifications on in My Orders first.", go: function () { setMode("guest"); if (!S.guest) return; ui.stacks.guest = [{ name: "orders" }]; render(true); } },
+  ];
+  var ALSO = { k: "logged", t: "Log a basket with no signal", s: "Staff side, Log Basket tab. Turn signal on in Account to upload it.", go: function () { setMode("staff"); if (!S.staff) return; ui.stacks.staff = [{ name: "log" }]; render(true); } };
+
+  function stepHtml(st, n) {
+    var done = !!S.tour[st.k];
+    return '<li class="step' + (done ? " done" : "") + '"><span class="num">' + (done ? "&#10003;" : n) + '</span><div class="txt"><b>' + esc(st.t) + "</b><span>" + esc(st.s) + "</span></div>" +
+      (st.go ? '<button class="linkbtn" type="button" data-step="' + st.k + '">Show me</button>' : "<span></span>") + "</li>";
+  }
+  function renderSide() {
+    document.querySelectorAll("#modes [data-mode]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.mode === mode)); });
+    document.getElementById("modeHint").textContent = mode === "guest"
+      ? "You're the guest on their own phone, using the web app. Both views share one set of orders, the same way two phones share one database."
+      : "You're on a staff member's Android phone. Both views share one set of orders, the same way two phones share one database.";
+    document.getElementById("steps").innerHTML = STEPS.map(function (s, i) { return stepHtml(s, i + 1); }).join("") +
+      '<li class="step also' + (S.tour.logged ? " done" : "") + '" style="border-top:1px dashed var(--line)"><span class="num">' + (S.tour.logged ? "&#10003;" : "+") + '</span><div class="txt"><b>' + esc(ALSO.t) + "</b><span>" + esc(ALSO.s) + '</span></div><button class="linkbtn" type="button" data-step="logged">Show me</button></li>';
+  }
+  document.getElementById("steps").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-step]"); if (!b) return;
+    var st = STEPS.concat([ALSO]).filter(function (s) { return s.k === b.dataset.step; })[0];
+    if (st && st.go) st.go();
+    if (window.matchMedia("(max-width: 1040px)").matches) document.querySelector(".device-col").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // In-room QR card
+  var qrRoom = document.getElementById("qrRoom"), qrSite = document.getElementById("qrSite");
+  var opts = ""; for (var i = 1; i <= 50; i++) opts += '<option value="' + i + '"' + (i === 23 ? " selected" : "") + ">Room " + i + "</option>";
+  qrRoom.innerHTML = opts;
+  qrSite.innerHTML = D.SITES.map(function (s) { return '<option value="' + s.id + '">' + s.label + "</option>"; }).join("");
+  function drawQR() { document.getElementById("qr").innerHTML = qrSVG("https://" + D.BRAND.domain + "/r/" + qrSite.value + "/" + qrRoom.value); }
+  qrRoom.addEventListener("change", drawQR); qrSite.addEventListener("change", drawQR);
+  drawQR();
+  document.getElementById("scanBtn").addEventListener("click", function () {
+    setMode("guest");
+    drafts.login = { name: "", room: qrRoom.value, site: qrSite.value, fromQR: true };
+    S.guest = null; persist();
+    ui.stacks.guest = [{ name: "login" }];
+    render(true);
+    if (window.matchMedia("(max-width: 1040px)").matches) document.querySelector(".device-col").scrollIntoView({ behavior: "smooth", block: "start" });
+    setTimeout(function () { var n = document.getElementById("g-name"); if (n) n.focus({ preventScroll: true }); }, 50);
+  });
+
+  var resetArmed = false, resetBtn = document.getElementById("resetBtn");
+  resetBtn.addEventListener("click", function () {
+    if (!resetArmed) {
+      resetArmed = true; resetBtn.textContent = "Tap again to reset"; resetBtn.classList.add("warn");
+      setTimeout(function () { resetArmed = false; resetBtn.textContent = "Reset demo"; resetBtn.classList.remove("warn"); }, 3500);
+      return;
+    }
+    resetArmed = false; resetBtn.textContent = "Reset demo"; resetBtn.classList.remove("warn");
+    S = D.reset(); D.save(S);
+    mode = "guest";
+    ui.stacks = { guest: [{ name: "orders" }], staff: [{ name: "queue" }] }; ui.scroll = {}; ui.error = null;
+    drafts.guest = { photo: null, items: [], itemName: "", qty: 1 };
+    drafts.staff = { clientName: "", room: "", photo: null, items: [], itemName: "", qty: 1 };
+    drafts.completion = {};
+    toastsEl.innerHTML = ""; render(true);
+    toast("Demo reset", "Fresh sample orders loaded.");
+  });
+
+  // Keep the dashboard tab (and other tabs) in step with changes.
+  window.addEventListener("storage", function (e) {
+    if (e.key !== D.KEY) return;
+    S = D.load(); render();
+  });
+
+  setInterval(function () { var c = document.getElementById("clock"); if (c) c.textContent = clock(); }, 20000);
+
+  persist();
+  render(true);
+  if (S.signal) scheduleSync();
+})();
+</script>
+
+</body></html>
