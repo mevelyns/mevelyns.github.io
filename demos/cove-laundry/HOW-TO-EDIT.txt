@@ -1,0 +1,106 @@
+COVE LAUNDRY DEMO: HOW TO EDIT
+==============================
+
+Three files, all plain text. Open them in VS Code (or Notepad), save,
+then refresh the page in your browser to see the change. No build step.
+
+  index.html      the app demo (phone + the page around it)
+  dashboard.html  the manager dashboard
+  demo-data.js    the fake company, guests, staff and orders (used by both)
+
+To preview: double-click index.html, or right-click > Open with > Chrome.
+
+
+1. COLOURS
+----------
+index.html, near the very top, inside <style>. Two labelled blocks:
+
+  "1. Page around the phone"   --bg, --panel, --band, --accent ...
+  "2. Inside the phone"        --s-bg, --s-band, --s-accent ...
+
+Change a hex value and every place that uses it updates. The main pink
+is --accent / --s-accent (#9c4a62). The light pink header strips are
+--band / --s-band (#f6e1e7).
+
+Dark mode (for visitors whose computer is set to dark) has its own
+values a few lines further down, in the two blocks that start with
+"@media (prefers-color-scheme: dark)" and ":root[data-theme="dark"]".
+Keep those two blocks the same as each other.
+
+dashboard.html works the same way: the colour block is at the top of
+<style>, starting with "EDITING COLOURS".
+
+Also hard-coded in two places (search for #9c4a62 to find them):
+  - the logo square (in index.html and dashboard.html)
+  - the printed room card's button (.scanbtn)
+
+
+2. SQUARE CORNERS
+-----------------
+"* { border-radius: 0; }" near the top of the styles makes everything
+square. Only the phone frame itself is rounded (.phone and .screen).
+To round something, give its rule a border-radius, e.g.
+  .btn { ... border-radius: 6px; }
+
+
+3. WORDS ON THE PAGE AROUND THE PHONE
+-------------------------------------
+index.html, in the HTML after </style>: the eyebrow, the "Cove Laundry"
+heading, the intro paragraph, the "How the real app works" list and the
+room card. Just edit the text between the tags.
+
+The "Try the full loop" steps are in the script: search for "var STEPS".
+
+
+4. WORDS INSIDE THE PHONE (THE APP SCREENS)
+-------------------------------------------
+index.html, in the <script> near the bottom. Each screen is a function:
+
+  VIEWS.guest.login     Guest sign in
+  VIEWS.guest.new       New Order
+  VIEWS.guest.orders    My Orders
+  VIEWS.guest.order     Order details
+  VIEWS.guest.account   Account
+  VIEWS.staff.login     Staff sign in
+  VIEWS.staff.queue     Queue
+  VIEWS.staff.log       Log a Basket
+  VIEWS.staff.completed Completed
+  VIEWS.staff.account   Account
+  VIEWS.staff.order     Basket (collect, checklist, wash/dry/fold)
+
+Search for the name (e.g. "VIEWS.staff.queue") and edit the text inside
+the quotes. Keep the quotes and the + signs as they are.
+
+Pop-up messages ("Order submitted", "Basket logged") are in the same
+script: search for toast(.
+
+Limit messages ("Room 12 already has a basket...") are in checkRules.
+
+
+5. COMPANY, PEOPLE AND ITEMS
+----------------------------
+demo-data.js, at the top:
+
+  BRAND   company name, app name, the fake web address
+  SITES   the properties (Harbour Wing, Garden Suites)
+  STAFF   staff names
+  GUESTS  guest names
+  ITEMS   laundry items, how common each is, and the max quantity
+
+The featured guest (Emma Clarke, Room 12) is set further down: search
+for "Emma Clarke". If you rename her, also change the name in
+freshState() at the bottom.
+
+
+6. SEEING YOUR CHANGES TO THE DATA
+----------------------------------
+The demo saves its orders in your browser so the dashboard can read
+them. After editing demo-data.js, click "Reset demo" (twice) on the app
+page, or the old data keeps showing until tomorrow.
+
+
+7. SCREENSHOTS FOR THE CASE STUDY
+---------------------------------
+If you change how the app looks, retake the images in
+images/cove-laundry/ (see images/README.txt for the file names), or ask
+Claude to regenerate them.
