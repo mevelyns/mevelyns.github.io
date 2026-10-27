@@ -89,7 +89,7 @@
     </div>
     <div class="hint" id="hint">Use the arrow keys, or tap where you want to walk</div>
 
-    <!-- Title -->
+    
     <div class="overlay show" id="titleScreen">
       <div class="card title-card">
         <h2 id="titleText">A little walk for Alex</h2>
@@ -98,7 +98,7 @@
       </div>
     </div>
 
-    <!-- Memory card -->
+    
     <div class="overlay" id="memoryScreen" role="dialog" aria-modal="true" aria-labelledby="memTitle">
       <div class="card">
         <div class="photo" id="memPhoto"></div>
@@ -109,7 +109,7 @@
       </div>
     </div>
 
-    <!-- The question -->
+    
     <div class="overlay" id="questionScreen" role="dialog" aria-modal="true" aria-labelledby="qText">
       <div class="card question" id="questionCard">
         <h2 id="qText">Alex, will you go on a date with me?</h2>
@@ -120,7 +120,7 @@
       </div>
     </div>
 
-    <!-- The "no" ending -->
+   
     <div class="overlay" id="sadScreen" role="dialog" aria-modal="true" aria-labelledby="sadTitle">
       <div class="card">
         <div class="photo" id="sadPhoto"></div>
@@ -134,7 +134,7 @@
       </div>
     </div>
 
-    <!-- The ending -->
+   
     <div class="overlay" id="endScreen" role="dialog" aria-modal="true" aria-labelledby="endTitle">
       <div class="card">
         <h2 id="endTitle">Best answer.</h2>
@@ -151,13 +151,7 @@
 </div>
 
 <script>
-/* =====================================================================
-   PERSONALISE HERE
-   Change the names, messages and photos below. A photo is a file name
-   in this folder (e.g. "photo1.jpg") or a web address. Leave it empty
-   for the placeholder frame. "credit" is the small line under a photo.
-   The sample photos are free (and silly) cat photos from Unsplash.
-   ===================================================================== */
+
 const STORY = {
   to: "Alex",
   from: "Sam",
@@ -181,7 +175,7 @@ const STORY = {
   ending: "I'll pick you up at seven. Wear something comfy, we're walking. Love, Sam",
 };
 
-/* ===================================================================== */
+
 (function () {
   "use strict";
   const W = 640, H = 384;
@@ -193,11 +187,11 @@ const STORY = {
   fctx.scale(2, 2);
   const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  // ---------- seeded random so the meadow looks the same every time ----------
+ 
   let seed = 7;
   const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
 
-  // ---------- the world ----------
+ 
   const path = [[0, 340], [110, 305], [215, 318], [320, 262], [420, 228], [515, 150], [585, 98]];
   const pond = { x: 170, y: 118, rx: 70, ry: 40 };
   const trees = [[40, 70], [300, 64], [372, 36], [612, 250], [478, 338], [92, 205], [565, 318], [252, 176], [430, 108], [610, 40]].map(([x, y]) => ({ x, y }));
@@ -217,7 +211,7 @@ const STORY = {
   let collected = 0;
   let t0 = performance.now();
 
-  // ---------- pre-render the ground once ----------
+  //pre-render the ground once
   const ground = document.createElement("canvas");
   ground.width = W * 2; ground.height = H * 2;
   (function paintGround() {
@@ -270,7 +264,7 @@ const STORY = {
     return dx * dx + dy * dy < 1;
   }
 
-  // ---------- drawing ----------
+  //drawing
   function drawTree(t) {
     ctx.fillStyle = "rgba(0,0,0,0.16)";
     ctx.beginPath(); ctx.ellipse(t.x, t.y + 14, 18, 6, 0, 0, Math.PI * 2); ctx.fill();
@@ -355,7 +349,7 @@ const STORY = {
     front.forEach(drawTree);
   }
 
-  // ---------- movement ----------
+  // movement
   const SPEED = 120;
   function blocked(x, y) {
     if (x < 10 || x > W - 10 || y < 22 || y > H - 12) return true;
@@ -392,7 +386,7 @@ const STORY = {
     if (collected === memories.length && Math.hypot(player.x - bench.x, player.y - (bench.y + 14)) < 30) askQuestion();
   }
 
-  // ---------- story beats ----------
+  //story beats
   const placeholder = '<div class="ph"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg><span>Your photo goes here</span></div>';
   const $ = (id) => document.getElementById(id);
   function show(id) { ["titleScreen", "memoryScreen", "questionScreen", "sadScreen", "endScreen"].forEach(s => $(s).classList.toggle("show", s === id)); }
@@ -493,7 +487,7 @@ const STORY = {
     state = "play"; show(null);
   }
 
-  // ---------- celebration ----------
+  //celebration
   const parts = [];
   function confetti() {
     const n = reduceMotion ? 30 : 160;
@@ -515,7 +509,7 @@ const STORY = {
     }
   }
 
-  // ---------- sound (tiny, made in the browser) ----------
+  // sound 
   let audio = null, muted = false;
   function tone(freq, when, dur, vol) {
     if (!audio || muted) return;
@@ -530,7 +524,7 @@ const STORY = {
   function chime(n) { const base = [523, 587, 659, 698, 784][(n - 1) % 5]; tone(base, 0, 0.35, 0.12); tone(base * 1.5, 0.08, 0.35, 0.08); }
   function melody(notes) { notes.forEach((f, i) => tone(f, i * 0.14, 0.4, 0.12)); }
 
-  // ---------- input ----------
+  // input
   const KEYMAP = { ArrowLeft: 1, ArrowRight: 1, ArrowUp: 1, ArrowDown: 1, a: 1, d: 1, w: 1, s: 1 };
   window.addEventListener("keydown", (e) => {
     if (state !== "play") return;
@@ -568,7 +562,7 @@ const STORY = {
   $("titleText").textContent = "A little walk for " + STORY.to;
   view.tabIndex = 0;
 
-  // ---------- main loop ----------
+  // main loop 
   function frame(now) {
     const dt = Math.min(0.05, (now - t0) / 1000); t0 = now;
     if (state === "play") update(dt);
