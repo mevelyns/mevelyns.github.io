@@ -1,10 +1,4 @@
-/* =====================================================================
-   Cove Laundry — shared demo data
-   Fictional company (Cobalt Cove Hotel), fictional guests and staff.
-   Used by both the app demo (index.html) and the dashboard
-   (dashboard.html). Everything lives in this browser's localStorage;
-   nothing is sent anywhere.
-   ===================================================================== */
+
 (function () {
   "use strict";
 
@@ -39,7 +33,7 @@
     ["Bed sheet", 1, 2], ["Swimwear", 2, 2],
   ];
 
-  /* ---------------------------------------------------------- helpers */
+  /*helpers*/
 
   function mulberry32(a) {
     return function () {
@@ -94,11 +88,6 @@
       loggedBy: null, notify: false, local: false, demoUser: false,
     }, o);
   }
-
-  /* ------------------------------------------------------- generator
-     90 days of history ending now. Volume is higher at weekends and
-     turnaround improves over the period, so the dashboard has a story.
-     ------------------------------------------------------------------ */
 
   function generate(now) {
     now = now || new Date();
@@ -174,7 +163,7 @@
       active[k] = 1;
     });
 
-    // The featured guest: Emma Clarke, Room 12, Harbour Wing.
+    // The featured guest Emma Clarke, Room 12, Harbour Wing.
     orders = orders.filter(function (o) {
       return !(o.status !== "completed" && o.site === "harbour" && o.roomNumber === "12");
     });
