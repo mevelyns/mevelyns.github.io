@@ -9,85 +9,83 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
 <style>
-  /* ---------------------------------------------------------------
-     Palette. Categorical slots are the validated three-slot set
-     (blue / orange / aqua); every single-series chart uses the brand
-     navy instead. Dark steps are chosen for the dark surface, not
-     flipped from the light ones.
-     --------------------------------------------------------------- */
+  
   :root {
     color-scheme: light;
-    --plane:        #f2f5f9;
-    --surface:      #ffffff;
-    --ink:          #1a2b45;
-    --ink-2:        #52616f;
-    --muted:        #6b7e99;
-    --grid:         #e6ecf4;
-    --axis:         #c9d4e2;
-    --border:       rgba(26,43,69,0.12);
+    --plane:        #fbf3f5;  /* page background      */
+    --surface:      #fffafb;  /* cards                */
+    --band:         #f6e1e7;  /* header strip         */
+    --ink:          #3a2a30;
+    --ink-2:        #5f4952;
+    --muted:        #8a737c;
+    --grid:         #f1e2e6;
+    --axis:         #dcc3ca;
+    --border:       #e9cfd6;
 
-    --brand:        #1b3a6b;
-    --brand-soft:   #2a78d6;
+    --brand:        #9c4a62;
+    --brand-soft:   #c97b93;
 
-    --s1:           #2a78d6;  /* in progress */
-    --s2:           #eb6834;  /* pending     */
-    --s3:           #1baf7a;  /* completed   */
+    --s1:           #b5507a;  /* in progress */
+    --s2:           #d98a2b;  /* pending     */
+    --s3:           #3f8f63;  /* completed   */
 
-    --good:         #0ca30c;
-    --warn:         #c77b1e;
-    --crit:         #d03b3b;
+    --good:         #3f7a4e;
+    --warn:         #b8701a;
+    --crit:         #ae3b2e;
 
-    --shadow: 0 1px 2px rgba(26,43,69,.06), 0 4px 16px rgba(26,43,69,.05);
+    --shadow: none;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
       color-scheme: dark;
-      --plane:      #0e1116;
-      --surface:    #151a21;
-      --ink:        #ffffff;
-      --ink-2:      #c3cad4;
-      --muted:      #8d9aac;
-      --grid:       #232a34;
-      --axis:       #313a46;
-      --border:     rgba(255,255,255,0.12);
+      --plane:      #1b1417;
+      --surface:    #241a1e;
+      --band:       #2e2126;
+      --ink:        #f6eaee;
+      --ink-2:      #dac6cd;
+      --muted:      #a8919a;
+      --grid:       #33262b;
+      --axis:       #4a3940;
+      --border:     #3d2d33;
 
-      --brand:      #5598e7;
-      --brand-soft: #3987e5;
+      --brand:      #e6a2b5;
+      --brand-soft: #c97b93;
 
-      --s1:         #3987e5;
-      --s2:         #d95926;
-      --s3:         #199e70;
+      --s1:         #d77aa0;
+      --s2:         #e09a45;
+      --s3:         #4fae7a;
 
-      --good:       #0ca30c;
-      --warn:       #fab219;
-      --crit:       #d03b3b;
+      --good:       #6fbf83;
+      --warn:       #f0b45a;
+      --crit:       #e2685a;
 
-      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.3);
+      --shadow: none;
     }
   }
   :root[data-theme="dark"] {
     color-scheme: dark;
-    --plane:      #0e1116;
-    --surface:    #151a21;
-    --ink:        #ffffff;
-    --ink-2:      #c3cad4;
-    --muted:      #8d9aac;
-    --grid:       #232a34;
-    --axis:       #313a46;
-    --border:     rgba(255,255,255,0.12);
+    --plane:      #1b1417;
+    --surface:    #241a1e;
+    --band:       #2e2126;
+    --ink:        #f6eaee;
+    --ink-2:      #dac6cd;
+    --muted:      #a8919a;
+    --grid:       #33262b;
+    --axis:       #4a3940;
+    --border:     #3d2d33;
 
-    --brand:      #5598e7;
-    --brand-soft: #3987e5;
+    --brand:      #e6a2b5;
+    --brand-soft: #c97b93;
 
-    --s1:         #3987e5;
-    --s2:         #d95926;
-    --s3:         #199e70;
+    --s1:         #d77aa0;
+    --s2:         #e09a45;
+    --s3:         #4fae7a;
 
-    --good:       #0ca30c;
-    --warn:       #fab219;
-    --crit:       #d03b3b;
+    --good:       #6fbf83;
+    --warn:       #f0b45a;
+    --crit:       #e2685a;
 
-    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.3);
+    --shadow: none;
   }
 
   * { box-sizing: border-box; }
@@ -103,15 +101,18 @@
   .wrap { max-width: 1180px; margin: 0 auto; }
 
   header.top {
-    display: flex; flex-wrap: wrap; align-items: baseline;
-    gap: 12px; margin-bottom: 4px;
+    display: flex; flex-wrap: wrap; align-items: center;
+    gap: 12px; margin-bottom: 0;
+    background: var(--band); border: 1px solid var(--border); border-bottom: 0;
+    padding: 14px 16px;
   }
-  h1 { font-family: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif; font-size: 26px; font-weight: 800; margin: 0; letter-spacing: -0.02em; }
+  .sub { background: var(--band); border: 1px solid var(--border); border-top: 0; padding: 0 16px 12px; }
+  h1 { font-family: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif; font-size: 26px; font-weight: 800; margin: 0; letter-spacing: -0.02em; color: var(--brand); }
   .brand { display: flex; align-items: center; gap: 12px; }
   .brand svg { width: 38px; height: 38px; flex: none; }
   .brand .co { display: block; color: var(--muted); font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
   a.ctl { text-decoration: none; display: inline-flex; align-items: center; }
-  .demo-pill { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; background: var(--grid); color: var(--ink-2); font-size: 11.5px; font-weight: 600; vertical-align: 1px; }
+  .demo-pill { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 0; background: var(--grid); color: var(--ink-2); font-size: 11.5px; font-weight: 600; vertical-align: 1px; }
   .sep { width: 1px; align-self: stretch; background: var(--border); margin: 0 4px; }
   .sub { color: var(--muted); font-size: 13px; margin: 0 0 20px; }
   .spacer { flex: 1; }
@@ -124,21 +125,21 @@
     font: inherit; color: var(--ink-2);
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 8px; padding: 7px 13px; cursor: pointer;
+    border-radius: 0; padding: 7px 13px; cursor: pointer;
   }
   button.ctl:hover { color: var(--ink); }
   a.ctl {
     font: inherit; color: var(--ink-2); background: var(--surface);
-    border: 1px solid var(--border); border-radius: 8px; padding: 7px 13px;
+    border: 1px solid var(--border); border-radius: 0; padding: 7px 13px;
   }
   a.ctl:hover { color: var(--ink); }
   button.ctl[aria-pressed="true"] {
     background: var(--brand); border-color: var(--brand);
     color: #fff; font-weight: 600;
   }
-  :root[data-theme="dark"] button.ctl[aria-pressed="true"] { color: #0e1116; }
+  :root[data-theme="dark"] button.ctl[aria-pressed="true"] { color: #2a1a20; }
   @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) button.ctl[aria-pressed="true"] { color: #0e1116; }
+    :root:not([data-theme="light"]) button.ctl[aria-pressed="true"] { color: #2a1a20; }
   }
 
   .tiles {
@@ -148,13 +149,13 @@
   .customrange {
     display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px 8px;
     padding: 4px 4px 4px 10px; border: 1px solid var(--border);
-    border-radius: 8px; background: var(--surface);
+    border-radius: 0; background: var(--surface);
   }
   .customrange label { color: var(--muted); font-size: 12px; }
   .customrange input[type="date"] {
     font: inherit; font-size: 13px; color: var(--ink);
     background: var(--plane); border: 1px solid var(--border);
-    border-radius: 6px; padding: 4px 7px;
+    border-radius: 0; padding: 4px 7px;
   }
   .customrange input[type="date"]:focus-visible,
   button.ctl:focus-visible { outline: 2px solid var(--brand-soft); outline-offset: 2px; }
@@ -162,7 +163,7 @@
 
   .tile {
     background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; padding: 16px; box-shadow: var(--shadow);
+    border-radius: 0; padding: 16px; box-shadow: var(--shadow);
   }
   .tile .label { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
   .tile .value { font-size: 30px; font-weight: 650; letter-spacing: -0.02em; line-height: 1.1; }
@@ -177,16 +178,16 @@
 
   .card {
     background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; padding: 18px 18px 12px; box-shadow: var(--shadow);
+    border-radius: 0; padding: 18px 18px 12px; box-shadow: var(--shadow);
     min-width: 0;
   }
   .card.wide { grid-column: 1 / -1; }
-  .card h2 { font-size: 15px; margin: 0 0 2px; font-weight: 620; }
+  .card h2 { font-size: 15px; margin: 0 0 2px; font-weight: 700; color: var(--brand); }
   .card .hint { color: var(--muted); font-size: 12px; margin: 0 0 14px; }
 
   .legend { display: flex; flex-wrap: wrap; gap: 14px; margin: 0 0 12px; }
   .legend .item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-2); }
-  .legend .swatch { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+  .legend .swatch { width: 10px; height: 10px; border-radius: 0; flex: none; }
 
   svg { display: block; width: 100%; height: auto; overflow: visible; }
   .tick { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
@@ -199,7 +200,7 @@
   #tip {
     position: fixed; pointer-events: none; opacity: 0; transition: opacity .1s;
     background: var(--surface); color: var(--ink);
-    border: 1px solid var(--border); border-radius: 8px;
+    border: 1px solid var(--border); border-radius: 0;
     padding: 8px 10px; font-size: 12px; box-shadow: var(--shadow);
     z-index: 20; white-space: nowrap;
   }
@@ -213,7 +214,7 @@
   .tablewrap { overflow-x: auto; margin-top: 6px; }
 
   .status {
-    padding: 14px 16px; border-radius: 10px; margin-bottom: 16px;
+    padding: 14px 16px; border-radius: 0; margin-bottom: 16px;
     border: 1px solid var(--border); background: var(--surface); font-size: 13px;
   }
   .status.err { border-color: var(--crit); }
@@ -226,7 +227,7 @@
 
   <header class="top">
     <div class="brand">
-      <svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="11" fill="#1f4e8c"/><path d="M9 25c3.2-3 6.4-3 9.6 0s6.4 3 9.6 0" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M9 19c3.2-3 6.4-3 9.6 0s6.4 3 9.6 0" fill="none" stroke="#e2b261" stroke-width="2.4" stroke-linecap="round"/><circle cx="29" cy="11" r="3" fill="#e2b261"/></svg>
+      <svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" fill="#9c4a62"/><path d="M9 25c3.2-3 6.4-3 9.6 0s6.4 3 9.6 0" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M9 19c3.2-3 6.4-3 9.6 0s6.4 3 9.6 0" fill="none" stroke="#f4c6d3" stroke-width="2.4" stroke-linecap="round"/><rect x="26" y="8" width="6" height="6" fill="#f4c6d3"/></svg>
       <div><span class="co">Cobalt Cove Hotel</span><h1>Cove Laundry</h1></div>
     </div>
     <div class="spacer"></div>
@@ -272,26 +273,10 @@
 
 <script src="demo-data.js"></script>
 <script>
-/* =====================================================================
-   Cove Laundry dashboard (portfolio demo)
-
-   A plain HTML file. The real version reads live orders from Supabase;
-   this copy reads made-up data for a fictional hotel from demo-data.js,
-   so it works anywhere with no backend.
-
-   No libraries — every chart is hand-drawn SVG, so nothing needs to load
-   from the internet except your own data.
-   ===================================================================== */
-
-/* Portfolio demo: instead of Supabase, this reads the fictional
-   Cobalt Cove Hotel data from demo-data.js, plus any orders made in the
-   app demo in this browser. Field names match the real orders and
-   order_items tables, so everything below this block is unchanged. */
 
 const state = { orders: [], items: [], days: 30, custom: null, showTables: false, site: "all" };
-// state.custom = { from: "YYYY-MM-DD", to: "YYYY-MM-DD" } while the Custom period is active, else null.
 
-/* ---------------------------------------------------------------- data */
+/*data*/
 
 function load() {
   setStatus("");
@@ -321,7 +306,7 @@ function setStatus(html, isError) {
   box.innerHTML = html;
 }
 
-/* ------------------------------------------------------------- helpers */
+/*helpers*/
 
 const escapeHtml = (s) => String(s).replace(/[&<>"']/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -351,7 +336,7 @@ function customBounds() {
   return { start: from.getTime(), end: new Date(to.getFullYear(), to.getMonth(), to.getDate() + 1).getTime() };
 }
 
-/** Human label for the active period, e.g. "last 30 days", "all time", "12 Aug – 15 Sep 2026". */
+
 function periodLabel() {
   if (state.custom) {
     const f = parseKey(state.custom.from), t = parseKey(state.custom.to);
@@ -375,11 +360,6 @@ function filtered() {
     (state.site === "all" || o.site === state.site));
 }
 
-/* --------------------------------------------------------------- charts
-   Shared mark specs: bars are anchored to the baseline with 4px rounded
-   data-ends only, adjacent marks keep a 2px surface gap, lines are 2px
-   with >=8px markers, grid and axes stay recessive.
-   ---------------------------------------------------------------------- */
 
 const NS = "http://www.w3.org/2000/svg";
 const el = (n, attrs = {}) => {
@@ -389,7 +369,7 @@ const el = (n, attrs = {}) => {
 };
 
 /** Bar with rounded top corners, square where it meets the baseline. */
-function barPath(x, y, w, h, r = 4) {
+function barPath(x, y, w, h, r = 0) {
   const rr = Math.max(0, Math.min(r, w / 2, h));
   if (h <= 0) return "";
   return `M${x},${y + h} V${y + rr} Q${x},${y} ${x + rr},${y} H${x + w - rr} Q${x + w},${y} ${x + w},${y + rr} V${y + h} Z`;
@@ -427,7 +407,7 @@ function moveTip(evt) {
 }
 const hideTip = () => { tip.style.opacity = "0"; };
 
-/** Vertical bars over time. Single series → no legend; the title names it. */
+
 function vBars(data, { color = "var(--brand)", fmt = (v) => v, unit = "" } = {}) {
   const W = 720, H = 240, L = 44, R = 8, T = 12, B = 30;
   const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img" });
@@ -461,9 +441,7 @@ function vBars(data, { color = "var(--brand)", fmt = (v) => v, unit = "" } = {})
     svg.appendChild(hit);
   });
 
-  // Selective x labels only — never one per bar. The last point is always
-  // labelled, so any regular tick landing too close to it is dropped
-  // rather than left to overprint it.
+ 
   const xAt = (i) => L + i * band + band / 2;
   placeTicks(svg, data, xAt, H, W);
   return svg;
@@ -564,7 +542,7 @@ function hBars(data, { color = "var(--brand)", fmt = (v) => v } = {}) {
 
     if (w > 0) {
       // Rounded end at the data end only; the category axis end stays square.
-      const rr = Math.min(4, w);
+      const rr = 0;
       svg.appendChild(el("path", {
         d: `M${L},${y + (rowH - bh) / 2} H${L + w - rr} Q${L + w},${y + (rowH - bh) / 2} ${L + w},${y + (rowH - bh) / 2 + rr} V${y + (rowH + bh) / 2 - rr} Q${L + w},${y + (rowH + bh) / 2} ${L + w - rr},${y + (rowH + bh) / 2} H${L} Z`,
         fill: color,
@@ -586,7 +564,7 @@ function hBars(data, { color = "var(--brand)", fmt = (v) => v } = {}) {
 
 /** One stacked bar for status mix, with a 2px surface gap between segments. */
 function stackedBar(segments) {
-  const W = 720, H = 56, r = 6;
+  const W = 720, H = 56, r = 0;
   const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img" });
   const total = segments.reduce((s, x) => s + x.value, 0);
   if (!total) return svg;
@@ -628,7 +606,7 @@ function stackedBar(segments) {
   return svg;
 }
 
-/* --------------------------------------------------------------- render */
+/*render */
 
 function card(title, hint, node, tableRows) {
   const c = document.createElement("section");
@@ -672,7 +650,7 @@ function render() {
     { head: ["Day", "Orders"], rows: days.map((d) => [d.label, String(d.value)]) }
   ));
 
-  /* --- turnaround --- */
+  /*turnaround*/
   const ta = buildTurnaroundSeries(orders);
   charts.appendChild(card(
     "Average turnaround",
@@ -683,7 +661,7 @@ function render() {
     { head: ["Day", "Avg hours"], rows: ta.filter((d) => d.value != null).map((d) => [d.label, (Math.round(d.value * 10) / 10).toFixed(1)]) }
   ));
 
-  /* --- status mix --- */
+  /*status mix*/
   const mix = [
     { label: "Pending",     value: orders.filter((o) => o.status === "pending").length,     color: "var(--s2)" },
     { label: "In progress", value: orders.filter((o) => o.status === "in_progress").length, color: "var(--s1)" },
@@ -703,7 +681,7 @@ function render() {
   }
   charts.appendChild(mixCard);
 
-  /* --- per staff member --- */
+  /*per staff member*/
   const byStaff = countBy(orders.filter((o) => o.status === "completed" && o.completed_by), (o) => o.completed_by)
     .sort((a, b) => b.value - a.value).slice(0, 10);
   charts.appendChild(card(
@@ -713,7 +691,7 @@ function render() {
     { head: ["Staff", "Completed"], rows: byStaff.map((s) => [s.label, String(s.value)]) }
   ));
 
-  /* --- top items --- */
+  /*top items*/
   const orderIds = new Set(orders.map((o) => o.id));
   const itemTotals = {};
   state.items.forEach((it) => {
@@ -732,7 +710,7 @@ function render() {
     { head: ["Item", "Pieces"], rows: topItems.map((i) => [i.label, String(i.value)]) }
   ));
 
-  /* --- busiest rooms --- */
+  /*busiest rooms*/
   const byRoom = countBy(orders.filter((o) => o.room_number), (o) => `Room ${o.room_number}`)
     .sort((a, b) => b.value - a.value).slice(0, 10);
   charts.appendChild(card(
@@ -837,7 +815,7 @@ function renderTiles(orders) {
     </div>`).join("");
 }
 
-/* --------------------------------------------------------------- wiring */
+/*wiring*/
 
 const fromInput = document.getElementById("fromDate");
 const toInput = document.getElementById("toDate");
@@ -873,7 +851,7 @@ document.getElementById("rangeCtls").addEventListener("click", (e) => {
     .forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
   document.getElementById("customRange").classList.toggle("hide", !isCustom);
   if (isCustom) {
-    // Start from what was on screen: last 30 days, or keep the previous custom pick.
+    // Start from what was on screen last 30 days, or keep the previous custom pick.
     if (!fromInput.value || !toInput.value) {
       const end = new Date(); const start = new Date(end); start.setDate(start.getDate() - 29);
       fromInput.value = dayKey(start); toInput.value = dayKey(end);
